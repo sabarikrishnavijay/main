@@ -1,0 +1,135 @@
+<section class="vh-100" style="background-color: #eee;">
+    <div class="container h-100">
+        <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="col-lg-12 col-xl-11">
+                <div class="card text-black" style="border-radius: 25px;">
+                    <div class="card-body p-md-5">
+                        <div class="row justify-content-center">
+                            <div class="col-md-10 col-lg-6 col-xl-5 order-2 order-lg-1">
+
+                                <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">Sign up</p>
+
+                                <form class="mx-1 mx-md-4" action="signup" method="post">
+
+                                    <div class="d-flex flex-row align-items-center mb-4">
+                                        <i class="fas fa-user fa-lg me-3 fa-fw"></i>
+                                        <div class="form-outline flex-fill mb-0">
+                                            <input type="text" id="Name" name="Name" onkeyup="validateName()"
+                                                class="form-control" />
+                                            <label class="form-label" for="form3Example1c">Your Name</label>
+                                            <span id="nameerr" class="text-danger"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex flex-row align-items-center mb-4">
+                                        <i class="fas fa-envelope fa-lg me-3 fa-fw"></i>
+                                        <div class="form-outline flex-fill mb-0">
+                                            <input type="email" id="Email" name="Email" onkeyup="validEmail()"
+                                                class="form-control" />
+                                            <label class="form-label" for="form3Example3c">Your Email</label>
+                                            <span id="emailerr" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex flex-row align-items-center mb-4">
+                                        <i class="fas fa-envelope fa-lg me-3 fa-fw"></i>
+                                        <div class="form-outline flex-fill mb-0">
+                                            <input type="email" id="Number" name="Number" onkeyup="validEmail()"
+                                                class="form-control" />
+                                            <label class="form-label" for="form3Example3c">Your Number</label>
+                                            <span id="Numbererr" class="text-danger"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex flex-row align-items-center mb-4">
+                                        <i class="fas fa-lock fa-lg me-3 fa-fw"></i>
+                                        <div class="form-outline flex-fill mb-0">
+                                            <input type="password" id="Password" name="Password"
+                                                onkeyup="validPassowrd()" class="form-control" />
+                                            <label class="form-label" for="form3Example4c">Password</label>
+                                            <span id="passworderr" class="text-danger"></span>
+                                        </div>
+                                    </div>
+
+                                    {{#if signUpErr}}
+                                    <p class="text-danger">{{signUpErr}}</p>
+                                    {{/if}}
+
+
+                                    <div class="d-flex justify-content-center mx-4 mb-3 mb-lg-4">
+                                        <button type="submit" class="btn btn-primary btn-lg"
+                                            onclick="return validation()">Register</button>
+                                    </div>
+
+                                </form>
+
+                            </div>
+                            <div class="col-md-10 col-lg-6 col-xl-7 d-flex align-items-center order-1 order-lg-2">
+
+                                <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-registration/draw1.webp"
+                                    class="img-fluid" alt="Sample image">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+    var errorName = document.getElementById('nameerr')
+    var errorEmail = document.getElementById('emailerr')
+    var errorPassword = document.getElementById('passworderr')
+    function validateName() {
+        const name = document.getElementById('Name').value;
+        if (name == "") {
+            errorName.innerHTML = 'Enter your Name'
+            return false
+        }
+        if (!name.match(/^[a-zA-Z]*$/)) {
+            errorName.innerHTML = 'Number are not allowed'
+            return false
+        }
+        errorName.innerHTML = null
+        return true
+
+    }
+    function validEmail() {
+        const name = document.getElementById('Email').value
+        if (name == "") {
+            errorEmail.innerHTML = "enter you email address"
+            return false
+
+
+        }
+        if (!name.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/)) {
+            errorEmail.innerHTML = 'enter a proper email adress'
+            return false
+        }
+
+        errorEmail.innerHTML = null
+        return true
+    }
+
+    function validPassowrd() {
+        const name = document.getElementById('Password').value
+        if (name == "") {
+            errorPassword.innerHTML = "enter a password"
+            return false
+        }
+        if (name.length < 3) {
+            errorPassword.innerHTML = "password should be more than three characters"
+            return false
+        }
+        errorPassword.innerHTML = null
+        return true
+    }
+
+
+    function validation() {
+        if (!validateName() || !validEmail() || !validPassowrd()) {
+            return false
+        }
+        return true
+    }
+</script>

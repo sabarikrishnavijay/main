@@ -1,0 +1,96 @@
+<section>
+    <div class="container">
+        <div class="row">
+{{!-- 
+ enctype="multipart/form-data" --}}
+
+            <div class="col-md-6">
+                <form action="add-catagory" method="post">
+                    <label for="">Category Name</label> <span id="nameerr" class="text-danger"></span>
+                    <input type="text" name="Name" class="form-control" id="Name">
+                    <span id="nameerr" class="text-danger"></span>
+
+                    
+                    <label for="">Description</label> <span id="descripitonerr" class="text-danger"></span>
+                    <input type="text" name="Description" class="form-control" id="descripiton">
+
+                   
+{{!-- 
+                    <label for="">Image</label>
+                    <input type="file" name="Image" class="form-control" id="img">
+
+                    <label for="">Image</label>
+                    <input type="file" name="Image2" class="form-control mb-2" id="img2"> --}}
+
+                    <button type="submit" class="btn btn-success mt 4" onclick="return validation()">Submit</button>
+                    {{#if imgErr}}
+                    <p class="text-danger">{{imgErr}}</p>
+                    {{/if}}
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+{{!-- ............................................................................ --}}
+<script>
+    var errorName = document.getElementById('nameerr')
+    var priceerr = document.getElementById('priceerr')
+    var descripiton = document.getElementById('descripitonerr')
+    function validateName() {
+        const name = document.getElementById('Name').value;
+        if (name == "") {
+            errorName.innerHTML = 'Enter your Category Name'
+            return false
+        }
+        if (!name.match(/^[a-zA-Z]*$/)) {
+            errorName.innerHTML = 'Number are not allowed'
+            return false
+        }
+        errorName.innerHTML = null
+        return true
+
+    }
+
+
+    
+    function validprice() {
+        const price = document.getElementById('price').value
+
+        if (price == "") {
+            priceerr.innerHTML = "Cant be empty"
+
+            return false
+
+        }
+         if (!price.match(/^[0-9]*$/)) {
+            priceerr.innerHTML = 'Number are not allowed'
+            return false
+        }
+      
+        priceerr.innerHTML = null
+        return true
+
+    }
+    function discripiton() {
+        const dis = document.getElementById('descripiton').value
+        if (dis == "") {
+            descripiton.innerHTML = "Cannot be empty"
+            return false
+        }
+        descripiton.innerHTML = null
+        return true
+
+
+    }
+
+
+    function validation() {
+        if (!validateName()||!validprice() ||!discripiton() ) {
+            return false
+        }
+        return true
+    }
+</script>

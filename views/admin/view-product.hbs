@@ -1,0 +1,61 @@
+<section>
+    <div class="container">
+        <div class="row mt-5">
+
+            <a href="/admin/add-product" class="btn btn-success  col-2  mb-3" style="margin-left: auto;">Add Product</a>
+        </div>
+        <table class="table mt-5" id="tab" style="width: 100%;">
+            <thead>
+                <tr>
+
+                    <th scope="col">Title</td>
+                    <th scope="col">Category</th>
+                    <th scope="col">discripiton</th>
+                    <th scope="col">Price</th>
+                    <th scope="col">image</th>
+                    <th scope="col">Edit/Delect</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                {{#each products}}
+                <tr>
+
+                    <td>{{this.Name}}</td>
+                    <td>{{this.Catagory}}</td>
+                    <td>{{this.Description}}</td>
+                    <td>{{this.Price}}</td>
+                    <td>
+
+                        {{#each images}}
+                 
+                        <img src="/product-images/{{this}}" alt="" style="width: 50px; height: 50px;">
+
+                   
+                     {{/each}}
+                      <a href="/admin/edit-image/{{this._id}}" class="btn btn-primary">Edit images</a>
+
+                    </td>
+                    <td>
+                        <a href="/admin/edit-product/{{this._id}}" class="btn btn-primary">Edit</a>
+                        <a href="/admin/delete-product/{{this._id}}"
+                            onclick="return confirm('do you want to delect {{this.Name}}')"
+                            class="btn btn-danger">Delect</a>
+
+                    </td>
+
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+
+        
+    </div>
+</section>
+
+
+<script>
+    $(document).ready(function () {
+        $('#tab').DataTable();
+    });
+</script>

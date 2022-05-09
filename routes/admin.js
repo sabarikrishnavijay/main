@@ -28,7 +28,7 @@ router.get('/', function(req, res, next) {
 
 router.get('/all-user',(req,res)=>{
   adminHelper.getAllUsers().then((users)=>{
-    res.render('admin/all-users',{users})
+    res.render('admin/all-users',{users,admin:true})
   })
 
 })
@@ -43,7 +43,7 @@ router.get('/delete-user/:id',(req,res)=>{
 // ................................user update/edit................................
 router.get('/edit-user/:id',(req,res)=>{
   adminHelper.getAllUsersData(req.params.id).then((user)=>{
-    res.render('admin/edit-users',{user})
+    res.render('admin/edit-users',{user,admin:true})
   })
 
 })
@@ -62,7 +62,7 @@ router.post('/edit-user/:id',(req,res)=>{
 // ..............................add catagory.......................
 
 router.get('/add-catagory',(req,res)=>{
-  res.render('admin/add-catagory')
+  res.render('admin/add-catagory',{admin:true})
 })
 
 
@@ -77,7 +77,7 @@ router.post('/add-catagory',(req,res)=>{
 router.get('/view-catagory',(req,res)=>{
   adminHelpers.getCatagory().then((catagory)=>{
     console.log(catagory);
-    res.render('admin/view-catagory',{catagory})
+    res.render('admin/view-catagory',{catagory,admin:true})
   })
 })
 
@@ -94,7 +94,7 @@ router.get('/add-product',(req,res)=>{
   
   adminHelpers.getCatagoryView().then((item)=>{
     console.log(item);
-    res.render('admin/add-products',{item})
+    res.render('admin/add-products',{item,admin:true})
   })
  
 })
@@ -119,7 +119,7 @@ router.post('/add-product',store.array('Image',12),(req,res)=>{
 
 router.get('/view-product',(req,res)=>{
   adminHelpers.getProducts().then((products)=>{
-   res.render('admin/view-product',{products})
+   res.render('admin/view-product',{products,admin:true})
   })
 })
 
@@ -138,7 +138,7 @@ router.get('/edit-product/:id',(req,res)=>{
     console.log(product);
     adminHelpers.getCatagoryView().then((item)=>{
 
-      res.render('admin/edit-products',{product,item})
+      res.render('admin/edit-products',{product,item,admin:true})
     })
    
    
@@ -161,7 +161,7 @@ router.post('/edit-product/:id',(req,res)=>{
 router.get('/edit-image/:id',(req,res)=>{
   
   adminHelpers.getProdduct(req.params.id).then((product)=>{
-    res.render('admin/edit-images',{product})
+    res.render('admin/edit-images',{product,admin:true})
     
 
    

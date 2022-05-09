@@ -1,0 +1,7 @@
+{{a.Name}}
+{{a.Price}}
+{{#each a.images}}
+<img src="/product-images/{{this}}" alt="">
+{{/each}}
+
+<img src="/product-images/{{this.images.[0]}}" alt="">

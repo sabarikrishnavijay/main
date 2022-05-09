@@ -45,8 +45,8 @@
             errorName.innerHTML = 'Enter your Category Name'
             return false
         }
-        if (!name.match(/^[a-zA-Z]*$/)) {
-            errorName.innerHTML = 'Number are not allowed'
+        if (!name.match(/^[a-z A-Z]*$/)) {
+            errorName.innerHTML = 'Alhabets are only allowed'
             return false
         }
         errorName.innerHTML = null

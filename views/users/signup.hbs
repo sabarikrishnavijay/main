@@ -9,6 +9,9 @@
 
                                 <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">Sign up</p>
 
+                                {{#if err}}
+                                <p class="text-danger">{{err}}</p>
+                                {{/if}}
                                 <form class="mx-1 mx-md-4" action="signup" method="post">
 
                                     <div class="d-flex flex-row align-items-center mb-4">
@@ -33,8 +36,7 @@
                                     <div class="d-flex flex-row align-items-center mb-4">
                                         <i class="fas fa-envelope fa-lg me-3 fa-fw"></i>
                                         <div class="form-outline flex-fill mb-0">
-                                            <input type="text" id="Number" name="Number" 
-                                                class="form-control" />
+                                            <input type="text" id="Number" name="Number" class="form-control" />
                                             <label class="form-label" for="form3Example3c">Your Number</label>
                                             <span id="Numbererr" class="text-danger"></span>
                                         </div>
@@ -50,9 +52,6 @@
                                         </div>
                                     </div>
 
-                                    {{#if signUpErr}}
-                                    <p class="text-danger">{{signUpErr}}</p>
-                                    {{/if}}
 
 
                                     <div class="d-flex justify-content-center mx-4 mb-3 mb-lg-4">
@@ -80,6 +79,7 @@
     var errorName = document.getElementById('nameerr')
     var errorEmail = document.getElementById('emailerr')
     var errorPassword = document.getElementById('passworderr')
+    var errorNumber = document.getElementById('Numbererr')
     function validateName() {
         const name = document.getElementById('Name').value;
         if (name == "") {
@@ -87,7 +87,7 @@
             return false
         }
         if (!name.match(/^[a-zA-Z]*$/)) {
-            errorName.innerHTML = 'Number are not allowed'
+            errorName.innerHTML = 'Aphabets are only allowed'
             return false
         }
         errorName.innerHTML = null
@@ -124,10 +124,21 @@
         errorPassword.innerHTML = null
         return true
     }
+    function validnumber() {
+        const number = document.getElementById('Number').value
+        if (!number.match(/^[0-9]*$/)) {
+            errorNumber.innerHTML = 'Number are only allowed'
+            return false
+        }
+        errorNumber.innerHTML = null
+        return true
+
+
+    }
 
 
     function validation() {
-        if (!validateName() || !validEmail() || !validPassowrd()) {
+        if (!validateName() || !validEmail() || !validPassowrd() || !validnumber()) {
             return false
         }
         return true

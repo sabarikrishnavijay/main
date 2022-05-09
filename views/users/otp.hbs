@@ -9,9 +9,9 @@
                 <span id="code">Enter the code we just send on your mobile<br />
                     phone
                 </span>
-                <small style="font-weight: bold ;">+91{{Number}}</small>
+                <small style="font-weight: bold ;">+91{{user.Number}}</small>
             </div>
-            <form action="/otp-varify?Number={{Number}}" method="post">
+            <form action="/otp-varify?Number={{user.Number}}" method="post">
                 <div id="otp" class="inputs d-flex flex-row justify-content-center mt-2">
                     <input class="m-2 text-center form-control rounded" type="text" name="Number" id="first" maxlength="1" />
                     <input class="m-2 text-center form-control rounded" type="text" name="Number" id="second" maxlength="1" />

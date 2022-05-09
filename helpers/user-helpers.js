@@ -6,6 +6,7 @@ const async = require('hbs/lib/async');
 const { status } = require('express/lib/response');
 const { response } = require('../app');
 const { promise, reject } = require('bcrypt/promises');
+const { ObjectId } = require('mongodb');
 
 
 
@@ -26,7 +27,7 @@ module.exports={
         console.log('Login : doLogin');
         let response={}
         return new Promise(async(resolve,reject)=>{
-
+            
             let user=await db.get().collection(collection.USER_COLLECTION).findOne({Email:userData.Email})
             if(user){
                 bcrypt.compare(userData.Password,user.Password).then((status)=>{
@@ -60,6 +61,12 @@ module.exports={
                 console.log('no same email');
                 resolve({status:false})
             }
+        })
+    },
+    getProduct:(id)=>{
+        return new Promise(async(resolve,reject)=>{
+            let product= await db.get().collection(collection.PRODUCT_COLLECTION).findOne({_id:ObjectId(id)})
+            resolve(product)
         })
     }
 }

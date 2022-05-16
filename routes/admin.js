@@ -23,6 +23,31 @@ router.get('/', function(req, res, next) {
 });
 
 
+// ..............................admin login.....................................
+
+router.get('/login',(req,res)=>{
+  if(req.session.admin){
+    res.render("admin/admin-login",{loginErr:req.session.adminErr})
+  }
+  
+})
+
+router.post('/login-admin',(req,res)=>{
+  if(req.body.Email=="admin@gmail.com"&& req.body.Password=="123"){
+    req.session.admin=true
+    res.redirect('/admin')
+  }
+  req.session.adminErr='Invalid user and password'
+  res.redirect('/admin/login')
+})
+
+router.get('/logout',(req,res)=>{
+  req.session.admin=true
+  res.redirect('/admin/login')
+})
+
+
+
 
 // ....................................user data ...............................
 
@@ -32,7 +57,7 @@ router.get('/all-user',(req,res)=>{
   })
 
 })
-// ....................................delect user data...........................
+// ....................................delele user data...........................
 router.get('/delete-user/:id',(req,res)=>{
   let userId=req.params.id
   adminHelper.deleteUser(userId).then((response)=>{
@@ -119,7 +144,8 @@ router.post('/add-product',store.array('Image',12),(req,res)=>{
 
 router.get('/view-product',(req,res)=>{
   adminHelpers.getProducts().then((products)=>{
-   res.render('admin/view-product',{products,admin:true})
+  // res.render('admin/view-product',{products,admin:true})
+   res.render('admin/product-card',{products,admin:true})
   })
 })
 

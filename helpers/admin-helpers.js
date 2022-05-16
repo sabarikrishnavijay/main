@@ -56,11 +56,13 @@ module.exports={
                     resolve(response)
                 }else{
                     console.log('@@@@@@@@@@@@@blocked user');
-                    resolve({status:false})
+                    response.block=true
+                    resolve(response)
                 }
             }
             else{
                 console.log('blocked user');
+
                 resolve({status:false})
             }
         })
@@ -101,6 +103,7 @@ module.exports={
     },
     addProducts:(body,files)=>{
         body.images=files
+        body.Price=parseInt(body.Price)
         return new Promise((resolve,reject)=>{
             db.get().collection(collection.PRODUCT_COLLECTION).insertOne(body).then((response)=>{
                resolve(response);

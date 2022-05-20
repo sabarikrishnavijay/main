@@ -290,18 +290,33 @@ router.post('/saved-address',async(req,res)=>{
   let address=await userHelpers.getAddressDetails(req.body.addressid)
   let product=await userHelpers.getCartProductList2(address.userId)
   let totalPrice= await userHelpers.getTotalAmont(address.userId)
+  req.session.total=totalPrice
   userHelpers.savedAddressOrder(address,req.body,address.userId,totalPrice,product).then((response)=>{
     let orderId=response.insertedId
+    req.session.orderId=orderId
+    
 
     if(req.body.paymentmethod==='COD'){
       res.json({codStatus:true})
-    }else{
+    }else if (req.body.paymentmethod==='ONLINE'){
       userHelpers.generateRazorPay(orderId,totalPrice).then((response)=>{
           res.json(response)
 
 
       })
 
+    }else{
+
+      userHelpers.generatePaypal(orderId,totalPrice).then((data)=>{
+        
+        console.log('success');
+        response.data=data
+        response.paypal=true
+
+        res.json(response)
+        
+
+      })
     }
     
   })
@@ -400,4 +415,14 @@ router.post('/verify-payment',(req,res)=>{
   })
 }
 )
+
+// ..........................................paypal success/cancel....................................
+
+router.get('/success',(req,res)=>{
+  console.log(res.params);
+  userHelpers.changePaymentStatus(req.session.orderId).then(()=>{
+    res.redirect('/')
+
+  })
+})
 module.exports = router;

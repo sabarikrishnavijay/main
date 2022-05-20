@@ -15,6 +15,14 @@ var instance = new Razorpay({
     });
 
 
+ const paypal = require('paypal-rest-sdk');
+ 
+paypal.configure({
+  'mode': 'sandbox', //sandbox or live
+  'client_id': 'AePyJOTL1wJeJ4WtjO5HwaOPYJT1Ufd4CgVnd8UjtsUNuJP9fShqNUPvFJeECyaWmurWoY9cS9HoH8gl',
+  'client_secret': 'EAuA_BHwQ_uFMOv76CkHO1RNITmCqvnobQkLyzT55SxpmhPDQAwj2B8u00bqlkauikPFYDLwXV6ceoor'
+});
+
 
 module.exports = {
     doSignup: (usersData) => {
@@ -419,7 +427,7 @@ module.exports = {
 
     },
     changePaymentStatus:(orderId)=>{
-        console.log("llllllllllllllllllllllllllllllllllllllllllllllllllllllllll"+JSON.stringify(orderId));
+      
         return new Promise ((resolve,reject)=>{
             db.get().collection(collection.ORDER_COLLETION).updateOne({_id:ObjectId(orderId)},{
                 $set:{
@@ -429,6 +437,56 @@ module.exports = {
                 resolve()
             })
         })
+    },generatePaypal:(id,totalPrice)=>{
+        console.log('paypal');
+        return new Promise((resolve,reject)=>{
+            let create_payment_json = {
+                "intent": "sale",
+                "payer": {
+                    "payment_method": "paypal"
+                },
+                "redirect_urls": {
+                    "return_url": "http://localhost:3000/success",
+                    "cancel_url": "http://localhost:3000/cancel"
+                },
+                "transactions": [{
+                    "item_list": {
+                        "items": [{
+                            "name": "Red Sox Hat",
+                            "sku": "001",
+                            "price": totalPrice,
+                            "currency": "USD",
+                            "quantity": 1
+                        }]
+                    },
+                    "amount": {
+                        "currency": "USD",
+                        "total": totalPrice
+                    },
+                    "description": "Hat for the best team ever"
+                }]
+            };
+
+            paypal.payment.create(create_payment_json, function (error, payment) {
+                console.log(payment);
+                if (error) {
+                    throw error;
+                } else {
+                    // for(let i = 0;i < payment.links.length;i++){
+                    //   if(payment.links[i].rel === 'approval_url'){
+                    //     res.redirect(payment.links[i].href);
+                    //   }
+                    // }
+                    resolve(payment)
+                }
+              });
+               
+             
+ 
+        })
+
+
+
     }
 
 

@@ -11,7 +11,7 @@
                     <div class="card-header py-3">
                         <h5 class="mb-0 text-font text-uppercase">Delivery address</h5>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body"> 
                         <form id="checkOutForm" action="/place-order" method="post">
                             <div class="inside">
                                 <div>
@@ -19,6 +19,8 @@
                                     <div class="row mb-4">
                                         <div class="col">
                                             <div class="form-outline">
+                                                <input type="text" id="form11Example1" class="form-control"
+                                                    name="userId" value="{{user._id}}" hidden/>
                                                 <input type="text" id="form11Example1" class="form-control"
                                                     name="firstname" />
                                                 <label class="form-label" for="form11Example1">First name</label>

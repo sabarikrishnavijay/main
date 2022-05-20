@@ -217,7 +217,7 @@ router.get('/view-products/:id', (req, res) => {
   userHelpers.getProduct(req.params.id).then((products) => {
     console.log(products);
     let a = products
-    res.render('users/product-view', { a })
+    res.render('users/product-view', { a , user,cartCOunt})
    
   })
 
@@ -226,13 +226,15 @@ router.get('/view-products/:id', (req, res) => {
 
 // ..........................................cart........................................
 
-router.get('/cart',loginCheck,(req,res)=>{
+router.get('/cart',loginCheck,async(req,res)=>{
+ 
   user=req.session.user
+  cartCOunt= await userHelpers.getCartCount(req.session.user._id)
   let products=userHelpers.getCartProduts(req.session.user._id).then(async(items)=>{
   let total=await userHelpers.getTotalAmont(req.session.user._id)
-   
+  req.session.count=cartCOunt
 
-  res.render('users/cart',{items,user,total})
+  res.render('users/cart',{items,user,total,cartCOunt})
     
   })
   
@@ -263,14 +265,47 @@ router.post('/change-product-quantity',(req,res,next)=>{
 
   })
 })
-
+// ...................place order...............................
 router.get('/check-out',loginCheck,async(req,res)=>{
   user=req.session.user
+  cartCOunt=req.session.count
   let total= await userHelpers.getTotalAmont(req.session.user._id)
-
-  res.render('users/check-out',{total,user})
+console.log(total);
+  res.render('users/check-out',{total,user,cartCOunt})
+ // res.render('users/saved-address',{total,user})
 
 })
+
+router.get('/saved-address',async(req,res)=>{
+  let total= await userHelpers.getTotalAmont(req.session.user._id)
+  userHelpers.getAddress(req.session.user._id).then((address)=>{
+    res.render('users/saved-address',{address,total})
+  })
+
+})
+router.post('/saved-address',async(req,res)=>{
+  console.log(req.body);
+
+  console.log(req.body);
+  let address=await userHelpers.getAddressDetails(req.body.addressid)
+  let product=await userHelpers.getCartProductList2(address.userId)
+  let totalPrice= await userHelpers.getTotalAmont(address.userId)
+  userHelpers.savedAddressOrder(address,req.body,address.userId,totalPrice,product).then((response)=>{
+    let orderId=response.insertedId
+
+    if(req.body.paymentmethod==='COD'){
+      res.json({codStatus:true})
+    }else{
+      userHelpers.generateRazorPay(orderId,totalPrice).then((response)=>{
+          res.json(response)
+
+
+      })
+
+    }
+    
+  })
+}) 
 
 router.post('/place-order',loginCheck,async(req,res)=>{
   console.log(req.body);
@@ -279,14 +314,90 @@ router.post('/place-order',loginCheck,async(req,res)=>{
   console.log(product);
   console.log(totalPrice);
   userHelpers.placeOrder(req.body,product,totalPrice).then((response)=>{
+    res.redirect('/order-list')
 
   })
  
 })
 
+//...................................................order List....................................................
+router.get('/order-list',loginCheck,(req,res)=>{
+  user=req.session.user
+  console.log(req.session.user);
+  userHelpers.orderList(req.session.user._id).then((order)=>{
+    console.log(order);
 
-router.get('/order-list',(req,res)=>{
-  res.render('users/order-list')
+    res.render('users/order-list',{order,user})
+  })
 })
 
+//........................................................user Profile..................................................................
+router.get('/user-profile',loginCheck,async(req,res)=>{
+  user=req.session.user
+  let address=await userHelpers.getAddress(user._id)
+  console.log(address);
+
+  res.render('users/user-profile',{user,address})
+})
+
+//........................................................edit user address...............................................
+router.get('/edit-user-address/:id',async(req,res)=>{
+  let address=await userHelpers.getAddressDetails(req.params)
+  console.log(address);
+  res.render('users/edit-user-address',{address})
+})
+
+router.post('/edit-user-address/:id',(req,res)=>{
+
+  userHelpers.updateAddress(req.params,req.body).then(()=>{
+    res.redirect('/user-profile')
+  })
+})
+// ............................................change password................................................
+router.get('/change-password',(req,res)=>{
+ 
+  res.render('users/change-password',{status:req.session.pc})
+  req.session.pc=""
+  
+})
+
+router.post('/change-password',async(req,res)=>{
+
+  if(req.session.user.Email==req.body.Email){
+   await userHelpers.changePassword(req.body).then((response)=>{
+      if(response.status){
+        req.session.pc="Password changed"
+        res.redirect('/change-password')
+      }else{
+        req.session.pc="Wrong password or Email"
+        res.redirect('/change-password')
+      }
+    })
+  }else{
+    req.session.pc="Enter your Email"
+    res.redirect('/change-password')
+  }
+ 
+ 
+
+})
+
+
+router.post('/verify-payment',(req,res)=>{
+
+  console.log(JSON.stringify(req.body))
+  console.log(req.body['order[receipt]'])
+  userHelpers.verifyPayment(req.body).then(()=>{
+    console.log('next step');
+    userHelpers.changePaymentStatus(req.body['order[receipt]']).then(()=>{
+      console.log('payment success');
+      res.json({status:true})
+    })
+
+  }).catch((err)=>{
+    console.log(err);
+    // res.json({status:false, errMsg:''})
+  })
+}
+)
 module.exports = router;

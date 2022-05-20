@@ -1,24 +1,24 @@
 <section class="section-products">
     <div class="col-3 ps-5">
         <h1>filter</h1>
-<form action="/products" method="post">
-     <input class="form-check-input" type="radio" name="category" id="flexRadioDefault1" value="MEN">
-  <label class="form-check-label" for="flexRadioDefault1">
-MEN
-  </label> <br>
-   <input class="form-check-input" type="radio" name="category" id="flexRadioDefault1" value="WOMEN">
-  <label class="form-check-label" for="flexRadioDefault1">
-WOMEN
-  </label><br>
-   <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1" value="KIDS">
-  <label class="form-check-label" for="flexRadioDefault1">
-KIDS
-  </label><br>
-  <button class="btn btn-primary" type="submit"> Apply</button>
+        <form action="/products" method="post">
+            <input class="form-check-input" type="radio" name="category" id="flexRadioDefault1" value="MEN">
+            <label class="form-check-label" for="flexRadioDefault1">
+                MEN
+            </label> <br>
+            <input class="form-check-input" type="radio" name="category" id="flexRadioDefault1" value="WOMEN">
+            <label class="form-check-label" for="flexRadioDefault1">
+                WOMEN
+            </label><br>
+            <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1" value="KIDS">
+            <label class="form-check-label" for="flexRadioDefault1">
+                KIDS
+            </label><br>
+            <button class="btn btn-primary" type="submit"> Apply</button>
 
 
 
-</form>
+        </form>
     </div>
     <div class="container col-9">
         <div class="row justify-content-center text-center">
@@ -32,44 +32,47 @@ KIDS
         <div class="row">
             {{#each product}}
             <!-- Single Product -->
-            
+
             <div class="col-md-6 col-lg-4 col-xl-3 mb-5">
-              <a href="/view-products/{{this._id}}">  <div id="product-1" class="single-product">
-                    <div class="part-1" >
+                <a href="/view-products/{{this._id}}">
+                    <div id="product-1" class="single-product">
+                        <div class="part-1">
 
-                       
-                           
-                            <img src="/product-images/{{this.images.[0]}}" alt="" style="width: 100%; height: 100%;" class="part-1 ">
-                        
-                       
-                        <style>
-                            .section-products #product-1 .part-1::before {
-                                background: url() no-repeat center;
-                                background-size: cover;
-                                transition: all 0.3s;
-                            }
-                        </style>
 
-                        <ul>
-                            <li><a href="#"><i class="fas fa-shopping-cart"></i></a></li>
-                            <li><a href="#"><i class="fas fa-heart"></i></a></li>
-                            <li><a href="#"><i class="fas fa-plus"></i></a></li>
-                            <li><a href="#"><i class="fas fa-expand"></i></a></li>
-                        </ul>
+
+                            <img src="/product-images/{{this.images.[0]}}" alt="" style="width: 100%; height: 100%;"
+                                class="part-1 ">
+
+                            <ul>
+                                <li><a href="#"><i class="fas fa-shopping-cart"> <img
+                                                src="/product-images/{{this.images.[0]}}" alt=""
+                                                style="width: 100%; height: 100%;" class="part-1 "></i></a></li>
+                                <li><a href="#"><i class="fas fa-shopping-cart"> <img
+                                                src="/product-images/{{this.images.[1]}}" alt=""
+                                                style="width: 100%; height: 100%;" class="part-1 "></i></a></li>
+                                <li><a href="#"><i class="fas fa-shopping-cart"> <img
+                                                src="/product-images/{{this.images.[2]}}" alt=""
+                                                style="width: 100%; height: 100%;" class="part-1 "></i></a></li>
+
+                            </ul>
+
+
+
+                        </div>
+                        <div class="part-2">
+                            <h3 class="product-title">{{this.Name}}</h3>
+
+                            <h4 class="product-price text-success">RS:{{this.Price}}</h4>
+                        </div>
                     </div>
-                    <div class="part-2">
-                        <h3 class="product-title">{{this.Name}}</h3>
-                        <h4 class="product-old-price">$79.99</h4>
-                        <h4 class="product-price">{{this.Price}}</h4>
-                    </div>
-                </div></a>
+                </a>
                 <div>
                     <button class="btn btn-success" onclick="addToCart('{{this._id}}')"> Add to Cart</button>
                 </div>
             </div>
 
             {{/each}}
-      
+
         </div>
     </div>
 </section>
@@ -85,6 +88,13 @@ KIDS
     }
 
     a,
+
+    .section-products #product-1 .part-1::before {
+        background: url() no-repeat center;
+        background-size: cover;
+        transition: all 0.3s;
+    }
+
     a:hover {
         text-decoration: none;
         color: inherit;
@@ -238,15 +248,15 @@ KIDS
 
 
 <script>
-    function addToCart(id){
+    function addToCart(id) {
         $.ajax({
-            url:'/add-to-cart/'+id,
-            method:'get',
-            success:(response)=>{
-               
-                if(response.status){
-                    let count=$('#cart-count').html()
-                    count=parseInt(count)+1
+            url: '/add-to-cart/' + id,
+            method: 'get',
+            success: (response) => {
+
+                if (response.status) {
+                    let count = $('#cart-count').html()
+                    count = parseInt(count) + 1
                     $("#cart-count").html(count)
                 }
             }

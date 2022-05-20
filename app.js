@@ -6,6 +6,7 @@ var logger = require('morgan');
 var hbs= require('express-handlebars')
 var db=require('./config/connection')
 var session=require('express-session')
+var swal=require('sweetalert2')
 
 var adminRouter = require('./routes/admin');
 var usersRouter = require('./routes/users');

@@ -7,7 +7,7 @@
   },
   "dependencies": {
     "bcrypt": "^5.0.1",
-    "bootstrap-icons": "^1.8.1",
+    "bootstrap-icons": "^1.8.2",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
     "express": "~4.16.1",
@@ -19,6 +19,8 @@
     "morgan": "~1.9.1",
     "multer": "^1.4.4",
     "nodemon": "^2.0.16",
+    "razorpay": "^2.8.1",
+    "sweetalert2": "^11.4.14",
     "twilio": "^3.77.0"
   }
 }

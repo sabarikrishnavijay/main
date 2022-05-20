@@ -53,7 +53,7 @@ router.get('/logout',(req,res)=>{
 
 router.get('/all-user',(req,res)=>{
   adminHelper.getAllUsers().then((users)=>{
-    res.render('admin/all-users',{users,admin:true})
+    res.render('admin/all-users',{users,admin:true,activeuser:true})
   })
 
 })
@@ -87,7 +87,7 @@ router.post('/edit-user/:id',(req,res)=>{
 // ..............................add catagory.......................
 
 router.get('/add-catagory',(req,res)=>{
-  res.render('admin/add-catagory',{admin:true})
+  res.render('admin/add-catagory',{admin:true,activecategory:true})
 })
 
 
@@ -102,7 +102,7 @@ router.post('/add-catagory',(req,res)=>{
 router.get('/view-catagory',(req,res)=>{
   adminHelpers.getCatagory().then((catagory)=>{
     console.log(catagory);
-    res.render('admin/view-catagory',{catagory,admin:true})
+    res.render('admin/view-catagory',{catagory,admin:true,activecategory:true})
   })
 })
 
@@ -119,7 +119,7 @@ router.get('/add-product',(req,res)=>{
   
   adminHelpers.getCatagoryView().then((item)=>{
     console.log(item);
-    res.render('admin/add-products',{item,admin:true})
+    res.render('admin/add-products',{item,admin:true,activeaddproduct:true})
   })
  
 })
@@ -145,7 +145,7 @@ router.post('/add-product',store.array('Image',12),(req,res)=>{
 router.get('/view-product',(req,res)=>{
   adminHelpers.getProducts().then((products)=>{
   // res.render('admin/view-product',{products,admin:true})
-   res.render('admin/product-card',{products,admin:true})
+   res.render('admin/product-card',{products,admin:true,activeviewproduct:true})
   })
 })
 
@@ -207,5 +207,28 @@ router.post('/edit-images/:id',store.array('Image',12),(req,res)=>{
   
     })
 })
-router
+
+// .............................order list....................
+
+router.get('/order-list',(req,res)=>{
+  adminHelpers.getOrderList().then((orders)=>{
+    res.render('admin/admin-order-list',{orders,admin:true,activeorder:true})
+ console.log(orders);
+  })
+ 
+})
+
+router.get('/order-remove/:id',(req,res)=>{
+  adminHelpers.deleteOrder(req.params).then(()=>{
+    res.redirect('/admin/order-list')
+  })
+})
+
+router.post('/order-update',(req,res)=>{
+  console.log(req.body);
+  adminHelpers.updateStatusOrder(req.body).then((response)=>{
+    res.json(response)
+  })
+
+})
 module.exports = router;

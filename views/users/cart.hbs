@@ -88,12 +88,14 @@
                       <label class="form-label" for="form3Examplea2">Enter your code</label> <br>
                       <button class="btn btn-success m-1" type="button" onclick="applyCoupon('{{user._id}}')">Apply
                         coupon</button>
-                        {{#if_eq coupon 1}}
-                        {{else}}
-                        <div>
-                          <p ><b class="text-success"> Coupon applied </b>  <button class="btn" type="button" id="removebtn" onclick="removeCoupon('{{user._id}}')"> <span class="text-danger"> <i class="bi bi-x-octagon"></i></span> </button></p>
-                        </div>
-                        {{/if_eq}}
+                      {{#if_eq coupon 1}}
+                      {{else}}
+                      <div>
+                        <p><b class="text-success"> Coupon applied </b> <button class="btn" type="button" id="removebtn"
+                            onclick="removeCoupon('{{user._id}}')"> <span class="text-danger"> <i
+                                class="bi bi-x-octagon"></i></span> </button></p>
+                      </div>
+                      {{/if_eq}}
                     </div>
                   </div>
                   {{!----------------------------- referral code ----------------------}}
@@ -104,12 +106,14 @@
                       <label class="form-label" for="form3Examplea2">Enter your referral code</label> <br>
                       <button class="btn btn-success m-1" type="button" onclick="applyreFerral('{{user._id}}')">Apply
                         code</button>
-                        {{#if_eq coupon 1}}
-                        {{else}}
-                        <div>
-                          <p ><b class="text-success"> Coupon applied </b>  <button class="btn" type="button" id="removebtn" onclick="removeCoupon('{{user._id}}')"> <span class="text-danger"> <i class="bi bi-x-octagon"></i></span> </button></p>
-                        </div>
-                        {{/if_eq}}
+                      {{#if_eq coupon 1}}
+                      {{else}}
+                      <div>
+                        <p><b class="text-success"> Coupon applied </b> <button class="btn" type="button" id="removebtn"
+                            onclick="removeCoupon('{{user._id}}')"> <span class="text-danger"> <i
+                                class="bi bi-x-octagon"></i></span> </button></p>
+                      </div>
+                      {{/if_eq}}
                     </div>
                   </div>
 
@@ -224,7 +228,7 @@
 
   function applyCoupon(id) {
     let coupon = document.getElementById('coupon').value
-   
+
 
     $.ajax({
       url: '/admin/applycoupon',
@@ -237,28 +241,40 @@
       success: (response) => {
         if (response.status) {
           Swal.fire({
-            
+
             icon: 'success',
             title: 'Coupon is applyed',
-          
-            timer: 1500,
-             confirmButtonText: 'ok',
-          }).then((result)=>{
+
+           
+            confirmButtonText: 'ok',
+          }).then((result) => {
             console.log(result)
-              if (result.isConfirmed) {
+            if (result.isConfirmed) {
 
               location.reload();
             }
           })
 
-        }else{
-             Swal.fire({
-            
+        } else if (response.usedStatus) { 
+            Swal.fire({
+
+            icon: 'error',
+            title: 'Already used',
+
+            timer: 1500,
+            confirmButtonText: 'ok',
+          })
+        }
+
+        else {
+
+          Swal.fire({
+
             icon: 'error',
             title: 'No coupon available',
-          
+
             timer: 1500,
-             confirmButtonText: 'ok',
+            confirmButtonText: 'ok',
           })
 
         }
@@ -266,28 +282,81 @@
     })
   }
 
-  function removeCoupon(id){
+  function removeCoupon(id) {
     $.ajax({
-      url:'/admin/removeCoupon',
-      data:{
-        userid:id 
+      url: '/admin/removeCoupon',
+      data: {
+        userid: id
       },
-      method:'post',
-      success:(response)=>{
+      method: 'post',
+      success: (response) => {
         if (response.status) {
           Swal.fire({
-            
+
             icon: 'success',
             title: 'Coupon is removed',
+
           
-            timer: 1500,
-             confirmButtonText: 'ok',
-          }).then((result)=>{
+            confirmButtonText: 'ok',
+          }).then((result) => {
             console.log(result)
-              if (result.isConfirmed) {
+            if (result.isConfirmed) {
 
               location.reload();
             }
+          })
+
+        }
+
+      }
+    })
+
+  }
+  function applyreFerral(id) {
+    let referralcode = document.getElementById('referral').value
+
+    $.ajax({
+      url: '/referral-code',
+      data: {
+        userid: id,
+        referralCode: referralcode
+      },
+      method: "post",
+      success: (response) => {
+        if (response.status) {
+          Swal.fire({
+
+            icon: 'success',
+            title: 'Coupon is removed',
+
+            timer: 1500,
+            confirmButtonText: 'ok',
+          }).then((result) => {
+            console.log(result)
+            if (result.isConfirmed) {
+
+              location.reload();
+            }
+          })
+
+        } else if (response.statusInvalid) {
+          Swal.fire({
+
+            icon: 'error',
+            title: 'Invaild Referral',
+
+            timer: 3000,
+            confirmButtonText: 'ok',
+          })
+
+        } else {
+          Swal.fire({
+
+            icon: 'error',
+            title: 'You can not user your own Referral Code',
+
+            timer: 3000,
+            confirmButtonText: 'ok',
           })
 
         }

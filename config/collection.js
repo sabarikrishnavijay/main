@@ -7,7 +7,8 @@ module.exports={
    ADDRESS_COLLETION:"address",
    BANNER_COLLETION:"banner",
    COUPON_COLLETION:"coupon",
-   REFERRAL_COLLETION:"referral code"
+   REFERRAL_COLLETION:"referral code",
+   USED_CODE_COLLETION:"used code"
 
    
 }

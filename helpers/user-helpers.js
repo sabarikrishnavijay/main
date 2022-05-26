@@ -85,10 +85,13 @@ module.exports = {
             resolve(product)
         })
     },
-    addToCart: (id, user) => {
+    addToCart: (id, user,product) => {
         let proObj = {
             item: ObjectId(id),
-            quantity: 1
+            quantity: 1,
+            productName:product.Name,
+            productPrice:product.Price,
+            productImage:product.images
 
         }
         return new Promise(async (resolve, reject) => {
@@ -318,6 +321,7 @@ module.exports = {
             resolve(order)
         })
     },
+   
     getAddress: (id) => {
         return new Promise(async (resolve, reject) => {
             let address = await db.get().collection(collection.ADDRESS_COLLETION).find({ userId: ObjectId(id) }).toArray()
@@ -332,7 +336,7 @@ module.exports = {
             resolve(address)
         })
 
-    }, savedAddressOrder: (address, data, id, total, product) => {
+    }, savedAddressOrder: (address, data, id, total, product,usedCoupons) => {
         return new Promise(async (resolve, reject) => {
             let status = data.paymentmethod === 'COD' ? 'Placed' : 'Pending'
             let orderObj = {
@@ -344,9 +348,33 @@ module.exports = {
                 status: status,
                 date: new Date()
             }
-       db.get().collection(collection.ORDER_COLLETION).insertOne(orderObj).then((response) => {
+       db.get().collection(collection.ORDER_COLLETION).insertOne(orderObj).then(async(response) => {
 
-                db.get().collection(collection.CART_COLLECTION).remove({ user: ObjectId(id) })
+             if(usedCoupons.coupon!=1){
+
+            
+              await  db.get().collection(collection.USED_CODE_COLLETION).findOne({userID:ObjectId(usedCoupons.user)}).then(async(response)=>{
+                    if (response) {
+                        console.log(" used data");
+                        await db.get().collection(collection.USED_CODE_COLLETION).updateOne({ userID: ObjectId(usedCoupons.user) }, {
+                            $push: { coupon: usedCoupons.couponName }
+                        })
+                    } else {
+                        console.log("no data");
+                        let dataused = {
+                            userID: ObjectId(usedCoupons.user),
+                            coupon: [usedCoupons.couponName]
+                        }
+                        await db.get().collection(collection.USED_CODE_COLLETION).insertOne(dataused)
+
+
+                    }
+                  
+                })
+            }
+
+                await  db.get().collection(collection.CART_COLLECTION).remove({ user: ObjectId(id) })
+
                 console.log(response);
                 resolve(response)
                
@@ -540,6 +568,32 @@ module.exports = {
                 resolve()
             })
     })
+    },
+    applyRefferalCode:(data)=>{
+        return new Promise(async(resolve,reject)=>{
+            let code=await db.get().collection(collection.REFERRAL_COLLETION).findOne({referral_code:data.referralCode})
+          console.log(code);
+            if(code){
+                if(code.userid!=data.userid){
+                   resolve({status:true})
+                }
+                console.log('failed');
+                resolve({status:false})
+            }
+            else{
+
+                console.log('invalid code');
+                resolve({statusInvalid:true})
+            }
+        })
+    },
+    getUsedCoupons:(id)=>{
+        return new Promise((resolve,reject)=>{
+            db.get().collection(collection.CART_COLLECTION).findOne({user:ObjectId(id)}).then((response)=>{
+               
+                resolve(response)
+            })
+        })
     }
 
 

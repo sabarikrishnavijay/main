@@ -250,12 +250,14 @@ router.get('/cart',loginCheck,async(req,res)=>{
 })
 
 
-router.get('/add-to-cart/:id',(req,res)=>{
+router.get('/add-to-cart/:id',async(req,res)=>{
   if(req.session.user){
-    
+
+    let product=await userHelpers.getProduct(req.params.id)
+    console.log(product);
     console.log("api call");
     console.log(req.params.id,req.session.user);
-    userHelpers.addToCart(req.params.id,req.session.user).then(()=>{
+    userHelpers.addToCart(req.params.id,req.session.user,product).then(()=>{
      res.json({status:true})
     })
   }else{
@@ -292,15 +294,16 @@ router.get('/saved-address',async(req,res)=>{
   })
 
 })
-router.post('/saved-address',async(req,res)=>{
-  console.log(req.body);
+router.post('/saved-address',loginCheck,async(req,res)=>{
 
-  console.log(req.body);
+ let usedCoupons=await userHelpers.getUsedCoupons(req.session.user._id)
+
   let address=await userHelpers.getAddressDetails(req.body.addressid)
   let product=await userHelpers.getCartProductList2(address.userId)
+
   let totalPrice= await userHelpers.getTotalAmont(address.userId)
   req.session.total=totalPrice
-  userHelpers.savedAddressOrder(address,req.body,address.userId,totalPrice,product).then((response)=>{
+  userHelpers.savedAddressOrder(address,req.body,address.userId,totalPrice,product,usedCoupons).then((response)=>{
     let orderId=response.insertedId
     req.session.orderId=orderId
     
@@ -348,6 +351,7 @@ router.post('/place-order',loginCheck,async(req,res)=>{
 router.get('/order-list',loginCheck,(req,res)=>{
   user=req.session.user
   console.log(req.session.user);
+
   userHelpers.orderList(req.session.user._id).then((order)=>{
     console.log(order);
 
@@ -452,6 +456,12 @@ router.get('/referral-code',(req,res)=>{
     res.redirect('/user-profile')
     
 
+  })
+})
+router.post('/referral-code',(req,res)=>{
+  console.log(req.body);
+  userHelpers.applyRefferalCode(req.body).then((response)=>{
+    res.json(response)
   })
 })
 module.exports = router;

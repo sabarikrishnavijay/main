@@ -1,0 +1,32 @@
+<section>
+<div class="container">
+    <div style="width: 500px;">
+   <form action="/admin/banner" method="post" enctype="multipart/form-data" >
+       <label for="">Image</label>
+       <input type="file" name="image" class="form-control">
+       <button type="submit">Add</button>
+   </form>
+    </div>
+    </div>
+</section>
+
+<section>
+
+    <div class="container">
+        {{#each banner}}
+        <div class="img mt-5">
+
+            <img src="/product-images/{{this.name}}" alt="" style="width:600px ; height: 100px;">
+        </div>
+        <div>
+            <a href="/admin/bannerdelete/{{this._id}}" class="btn btn-danger"> delete</a>
+        </div>
+        <hr>
+{{/each}}
+        
+    </div>
+</section>
+
+<script>
+  
+</script>

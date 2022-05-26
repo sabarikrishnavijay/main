@@ -68,15 +68,15 @@
               </div>
               <div class="col-lg-4 bg-grey">
                 <div class="p-5">
-                  {{!-- <h3 class="fw-bold mb-5 mt-2 pt-1">Summary</h3>
+                  <h3 class="fw-bold mb-5 mt-2 pt-1">Summary</h3>
                   <hr class="my-4">
 
                   <div class="d-flex justify-content-between mb-4">
 
 
-                  </div> --}}
+                  </div>
 
-                  {{!-- <h5 class="text-uppercase mb-3">Shipping</h5>
+                  {{!-- <h5 class="text-uppercase mb-3">Shipping</h5> --}}
 
 
 
@@ -84,10 +84,34 @@
 
                   <div class="mb-5">
                     <div class="form-outline">
-                      <input type="text" id="form3Examplea2" class="form-control form-control-lg" />
-                      <label class="form-label" for="form3Examplea2">Enter your code</label>
+                      <input type="text" class="form-control form-control-lg" id="coupon" />
+                      <label class="form-label" for="form3Examplea2">Enter your code</label> <br>
+                      <button class="btn btn-success m-1" type="button" onclick="applyCoupon('{{user._id}}')">Apply
+                        coupon</button>
+                        {{#if_eq coupon 1}}
+                        {{else}}
+                        <div>
+                          <p ><b class="text-success"> Coupon applied </b>  <button class="btn" type="button" id="removebtn" onclick="removeCoupon('{{user._id}}')"> <span class="text-danger"> <i class="bi bi-x-octagon"></i></span> </button></p>
+                        </div>
+                        {{/if_eq}}
                     </div>
-                  </div> --}}
+                  </div>
+                  {{!----------------------------- referral code ----------------------}}
+                  <hr>
+                  <div class="mb-5">
+                    <div class="form-outline">
+                      <input type="text" class="form-control form-control-lg" id="referral" />
+                      <label class="form-label" for="form3Examplea2">Enter your referral code</label> <br>
+                      <button class="btn btn-success m-1" type="button" onclick="applyreFerral('{{user._id}}')">Apply
+                        code</button>
+                        {{#if_eq coupon 1}}
+                        {{else}}
+                        <div>
+                          <p ><b class="text-success"> Coupon applied </b>  <button class="btn" type="button" id="removebtn" onclick="removeCoupon('{{user._id}}')"> <span class="text-danger"> <i class="bi bi-x-octagon"></i></span> </button></p>
+                        </div>
+                        {{/if_eq}}
+                    </div>
+                  </div>
 
                   <hr class="my-4">
 
@@ -150,8 +174,7 @@
 <script>
 
   function changeQuantity(cartId, proId, qty, count) {
-
-
+    let qnty = document.getElementById(proId).innerHTML
 
     $.ajax({
       url: '/change-product-quantity',
@@ -159,10 +182,11 @@
         cart: cartId,
         product: proId,
         count: count,
-        qty: qty
+        qty: qnty
       },
       method: 'post',
       success: (response) => {
+
         if (response.removedItem) {
 
           Swal.fire(
@@ -170,27 +194,106 @@
             "Your product has been deleted.",
             "success"
           ).then((result) => {
-             if (result.isConfirmed) {
-                   
-                location.reload();
-              }
-     
-          
+            if (result.isConfirmed) {
+
+              location.reload();
+            }
+
+
           })
 
 
 
-        } else {
-          qty = parseInt(qty)
-          count = parseInt(count)
-          let c = qty + count
+        }
 
-          document.getElementById(proId).innerHTML = c
+        else {
+
+          qty2 = parseInt(qnty)
+          count = parseInt(count)
+          //let c = qty + count
+
+          document.getElementById(proId).innerHTML = parseInt(qty2 + count)
           document.getElementById('total').innerHTML = response.total
+
 
 
         }
       }
     })
+  }
+
+  function applyCoupon(id) {
+    let coupon = document.getElementById('coupon').value
+   
+
+    $.ajax({
+      url: '/admin/applycoupon',
+      data: {
+        userid: id,
+        enteredcoupon: coupon
+
+      },
+      method: 'post',
+      success: (response) => {
+        if (response.status) {
+          Swal.fire({
+            
+            icon: 'success',
+            title: 'Coupon is applyed',
+          
+            timer: 1500,
+             confirmButtonText: 'ok',
+          }).then((result)=>{
+            console.log(result)
+              if (result.isConfirmed) {
+
+              location.reload();
+            }
+          })
+
+        }else{
+             Swal.fire({
+            
+            icon: 'error',
+            title: 'No coupon available',
+          
+            timer: 1500,
+             confirmButtonText: 'ok',
+          })
+
+        }
+      }
+    })
+  }
+
+  function removeCoupon(id){
+    $.ajax({
+      url:'/admin/removeCoupon',
+      data:{
+        userid:id 
+      },
+      method:'post',
+      success:(response)=>{
+        if (response.status) {
+          Swal.fire({
+            
+            icon: 'success',
+            title: 'Coupon is removed',
+          
+            timer: 1500,
+             confirmButtonText: 'ok',
+          }).then((result)=>{
+            console.log(result)
+              if (result.isConfirmed) {
+
+              location.reload();
+            }
+          })
+
+        }
+
+      }
+    })
+
   }
 </script>

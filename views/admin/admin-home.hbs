@@ -1,15 +1,320 @@
 <section>
-<div class="coontainer">
-<div class="image-banner image-fluid" >
-    <img src="/images/istockphoto-1314651804-170667a.jpg" style="width: 100%;" alt="">
-</div>
+    <div class="container">
 
-</div>
+
+    </div>
+    <div class="row">
+        <div class="card">
+            <h5>Total Orders</h5>
+
+            <P class="num">{{response.totalorder}}</P>
+        </div>
+        <div class="card">
+            <h5>Total Sale</h5>
+            <P class="num">{{response.totalsale}}</P>
+        </div>
+        <div class="card">
+            <h5>Total Revenu</h5>
+            <P class="num">{{response.totalRevenu}}</P>
+        </div>
+    </div>
+     <div class=" d-flex justify-content-evenly my-5" id="chartid">
+
+
+
+        <div class="card23 ">
+            <canvas id="myChart3" width="250px" height="250px"></canvas>
+        </div>
+        <div class="card23 ">
+            <canvas id="myChart4" width="250px" height="250px"></canvas>
+        </div>
+        <div class="card23 ">
+            <canvas id="myChart5" width="250px" height="250px"></canvas>
+        </div>
+
+    </div>
+
+    <div class=" d-flex justify-content-evenly" id="chartid">
+
+
+
+        <div class="card2 col-md-5">
+            <canvas id="myChart" width="400px" height="400px"></canvas>
+        </div>
+        <div class="card2 col-md-5">
+            <canvas id="myPieChart" width="400px" height="400px"></canvas>
+        </div>
+
+    </div>
+   
+
 </section>
 
 <style>
-    li{
+    @media only screen and (max-width: 1200px) {
+        #chartid {
+
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .row {
+            width: 500px;
+            margin: 0;
+            align-items: center;
+        }
+
+    }
+
+    li {
         margin-top: 20px;
         margin-bottom: 20px;
     }
+
+    .card {
+        margin: 25px;
+
+        display: flex;
+        align-items: center;
+        width: 250px;
+        height: 150px;
+        border-radius: 47px;
+        background: #ffffff;
+        box-shadow: -29px -29px 58px #bebebe,
+            29px 29px 58px #ffffff;
+    }
+
+    .card2 {
+
+        width: 500px;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+
+        border-radius: 47px;
+        background: #ffffff;
+        box-shadow: -29px -29px 58px #bebebe,
+            29px 29px 58px #ffffff;
+    }
+
+    .row {
+        display: flex;
+        justify-content: space-evenly;
+        align-items: center;
+    }
+
+    .num {
+
+        padding: 20px;
+        font-size: 30px;
+        font-weight: 600;
+    }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.js"
+    integrity="sha512-Lii3WMtgA0C0qmmkdCpsG0Gjr6M0ajRyQRQSbTF6BsrVh/nhZdHpVZ76iMIPvQwz1eoXC3DmAg9K51qT5/dEVg=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<span id="paymentcod" hidden>{{response.payment.COD}}</span>
+<span id="paymentrayzor" hidden>{{response.payment.ONLINE}}</span>
+<span id="paymentpaypal" hidden>{{response.payment.PAYPAL}}</span>
+<span id="statuscancel" hidden>{{response.status.canceld}}</span>
+<span id="statuspending" hidden>{{response.status.Pending}}</span>
+<span id="statusplaced" hidden>{{response.status.Placed}}</span>
+
+<script>
+    let cancel = document.getElementById('statuscancel').innerHTML
+    let pending = document.getElementById('statuspending').innerHTML
+    let placed = document.getElementById('statusplaced').innerHTML
+
+
+    const ctx = document.getElementById('myChart').getContext('2d');
+    const myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['pending', 'cancel', 'Placed'],
+            datasets: [{
+                label: 'Order status',
+                data: [pending, cancel, placed],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+<script>
+    let cod = document.getElementById('paymentcod').innerHTML
+    let razorpay = document.getElementById('paymentrayzor').innerHTML
+    let paypal = document.getElementById('paymentpaypal').innerHTML
+    const pi = document.getElementById('myPieChart').getContext('2d');
+
+    const myPieChart = new Chart(pi, {
+        type: 'pie',
+        data: {
+            labels: ['Cod', 'Rayzorpay', 'Paypal'],
+            datasets: [{
+                label: 'Payment methods',
+                data: [cod, razorpay, paypal],
+                backgroundColor: [
+                    'rgb(255, 99, 132)',
+                    'rgb(54, 162, 235)',
+                    'rgb(255, 205, 86)'
+                ],
+
+
+            }]
+        },
+
+    });
+
+</script>
+<script>
+
+    $(document).ready(function () {
+
+
+
+        $.ajax({
+            url: "/admin/Chart",
+            method: "get",
+            success: async (chartDatas) => {
+                console.log(chartDatas);
+                const ctx = document.getElementById("myChart3").getContext("2d");
+                const myChart3 = new Chart(ctx, {
+                    type: "pie",
+                    data: {
+                        labels: chartDatas.date,
+                        datasets: [
+                            {
+                                label: "daily Sales Report",
+                                data: chartDatas.dailyAmt,
+                                backgroundColor: [
+                                    "rgba(255, 99, 132, 0.2)",
+                                    "rgba(54, 162, 235, 0.2)",
+                                    "rgba(255, 206, 86, 0.2)",
+                                ],
+                                borderColor: [
+                                    "rgba(40, 100, 255, 1)",
+                                    "rgba(255, 99, 132, 1)",
+                                    "rgba(255, 206, 86, 1)",
+                                    "rgba(75, 192, 192, 1)",
+                                    "rgba(153, 102, 255, 1)",
+                                    "rgba(255, 159, 64, 1)",
+                                ],
+                                borderWidth: 1,
+                            },
+                        ],
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                            },
+                        },
+                    },
+                });
+
+                const ctxx = document.getElementById("myChart4").getContext("2d");
+                const myChart4 = new Chart(ctxx, {
+                    type: "line",
+                    data: {
+                        labels: chartDatas.month,
+                        datasets: [
+                            {
+                                label: "Monthly Sales Report",
+                                data: chartDatas.monthlyAmount,
+                                backgroundColor: [
+                                    "rgba(255, 30, 100, 1)",
+                                    "rgba(54, 100, 235, 1)",
+                                    "rgba(255, 106, 86, 1)",
+                                    "rgba(0, 192, 192, 1)",
+                                    "rgba(153, 40, 255, 1)",
+                                    "rgba(255, 159, 64, 1)",
+                                ],
+                                borderColor: [
+                                    "rgba(40, 100, 255, 1)",
+                                    "rgba(255, 99, 132, 1)",
+                                    "rgba(255, 206, 86, 1)",
+                                    "rgba(75, 192, 192, 1)",
+                                    "rgba(153, 102, 255, 1)",
+                                    "rgba(255, 159, 64, 1)",
+                                ],
+                                borderWidth: 1,
+                            },
+                        ],
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                            },
+                        },
+                    },
+                });
+
+                const ctxxx = document.getElementById("myChart5").getContext("2d");
+                const myChart5 = new Chart(ctxxx, {
+                    type: "bar",
+                    data: {
+                        labels: chartDatas.year,
+                        datasets: [
+                            {
+                                label: "Yearly Sales Report",
+                                data: chartDatas.yearlyAmount,
+                                backgroundColor: [
+                                    "rgba(255, 30, 100, 1)",
+                                    "rgba(54, 100, 235, 1)",
+                                    "rgba(255, 106, 86, 1)",
+                                    "rgba(0, 192, 192, 1)",
+                                    "rgba(153, 40, 255, 1)",
+                                    "rgba(255, 159, 64, 1)",
+                                ],
+                                borderColor: [
+                                    "rgba(40, 100, 255, 1)",
+                                    "rgba(255, 99, 132, 1)",
+                                    "rgba(255, 206, 86, 1)",
+                                    "rgba(75, 192, 192, 1)",
+                                    "rgba(153, 102, 255, 1)",
+                                    "rgba(255, 159, 64, 1)",
+                                ],
+                                borderWidth: 1,
+                            },
+                        ],
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                            },
+                        },
+                    },
+                });
+            },
+        });
+
+
+    })
+
+
+</script>

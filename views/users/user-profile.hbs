@@ -23,7 +23,7 @@
                     <hr>
                     {{#each address}}
                     <div>
-                       
+
                         <p class="card-text" style="font-weight: bolder; font-size: large; color: black;">
                             {{this.FirstName}}
                         </p>
@@ -31,24 +31,46 @@
 
                         <p class="card-text">{{this.mobile}}</p>
 
-                         <a href="/edit-user-address/{{this._id}}" class="btn btn-success">Edit</a>
-                         <hr>
+                        <a href="/edit-user-address/{{this._id}}" class="btn btn-success">Edit</a>
+                        <hr>
                     </div>
                     {{/each}}
 
 
                 </div>
                 <div class="row mt-3">
-                    
+
                 </div>
-             
+
             </div>
         </div>
         <div class="col-md-4">
             <div class="p-3 py-5">
-         <a href="/change-password" class="btn btn-success">Change password</a>
+                <a href="/change-password" class="btn btn-success">Change password</a>
+
             </div>
+
+       {{#if refferalCode}}
+       <P> Referral Code</P>
+<!-- The text field -->
+<input type="text" value="{{refferalCode.referral_code}}" id="myInput">
+
+<!-- The button used to copy the text -->
+<button class="btn btn-success" onclick="myFunction()"><i class="bi bi-clipboard-plus"></i></button>
+
+            {{else}}
+
+                    <a class="btn btn-success" id="referral" href="/referral-code" > Generate Referral Code</a>
+                   {{/if}}
+
+
         </div>
+
+
+
+
+
+
     </div>
 </div>
 </div>
@@ -105,5 +127,18 @@
 
 <script>
 
+function myFunction() {
+  /* Get the text field */
+  var copyText = document.getElementById("myInput");
 
+  /* Select the text field */
+  copyText.select();
+  copyText.setSelectionRange(0, 99999); /* For mobile devices */
+
+   /* Copy the text inside the text field */
+  navigator.clipboard.writeText(copyText.value);
+
+  /* Alert the copied text */
+  alert("Copied the text: " + copyText.value);
+}
 </script>

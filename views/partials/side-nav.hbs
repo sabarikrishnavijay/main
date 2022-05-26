@@ -1,4 +1,4 @@
-<div class="wrapper me-2" >
+<div class="wrapper col-sl-1" >
     <!-- Sidebar  -->
     <nav id="sidebar">
         <div class="sidebar-header">
@@ -61,55 +61,30 @@
             {{/if}}>
                 <a href="/admin/order-list">Order List</a>
             </li>
+            <li{{#if activebanner}}
+            class="active"
+            
+            {{/if}}>
+                <a href="/admin/banner-management">Banner Management</a>
+            </li>
         </ul>
 
         
     </nav>
 
     <!-- Page Content  -->
-    {{!-- <div id="content">
+    <div id="content">
 
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <div class="container-fluid">
+           
 
-                <button type="button" id="sidebarCollapse" class="btn btn-info">
-                    <i class="fas fa-align-left"></i>
-                    <span>Toggle Sidebar</span>
-                </button>
-                <button class="btn btn-dark d-inline-block d-lg-none ml-auto" type="button" data-toggle="collapse"
-                    data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
-                    aria-label="Toggle navigation">
-                    <i class="fas fa-align-justify"></i>
-                </button>
-
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="nav navbar-nav ml-auto">
-                        <li class="nav-item active">
-                            <a class="nav-link" href="#">Page</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Page</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Page</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Page</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-
-    </div> --}}
+    </div>
 </div>
 
 <style>
     @import "https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700";
-body {
-    height: 100%;
-    font-family: 'Poppins', sans-serif;
-    background: #fafafa;
+.wrapper{
+    width: 200px;
 }
 
 p {
@@ -156,7 +131,7 @@ a:focus {
 
 .wrapper {
     display: flex;
-    width: 100%;
+  
     align-items: stretch;
 }
 

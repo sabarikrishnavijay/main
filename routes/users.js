@@ -12,12 +12,13 @@ var client = require('twilio')(config.accountSID, config.authToken)
 
 
 
+
 // ............................................middle ware.......................................
 const userCheck = (req, res, next) => {
   adminHelpers.userStatus(req.body).then((response) => {
     console.log(response);
     if (response.status) {
-      next()
+      next() 
     } else if(response.block) {
       req.session.loginErr = "User is blocked "
       res.redirect('/login')
@@ -47,14 +48,19 @@ router.get('/', loginCheck,async function (req, res, next) {
   let cartCOunt= null
   if(req.session.user){
 
-    cartCOunt= await userHelpers.getCartCount(req.session.user._id)
+    cartCOunt= await userHelpers.getCartCount(req.session.user._id )
   }
   req.session.count=cartCOunt
-  res.render('users/home', { user,cartCOunt })
+  userHelpers.getbanner().then((banner)=>{
+    console.log(banner);
+    res.render('users/home', { user,cartCOunt ,banner})
+  })
+
 });
 
 // ..........................................Login route.......................................
 router.get('/login', (req, res) => {
+ 
   if (req.session.loggedIn) {
     res.redirect('/')
   } else {
@@ -233,8 +239,11 @@ router.get('/cart',loginCheck,async(req,res)=>{
   let products=userHelpers.getCartProduts(req.session.user._id).then(async(items)=>{
   let total=await userHelpers.getTotalAmont(req.session.user._id)
   req.session.count=cartCOunt
+  let coupon=await userHelpers.getcoupon(req.session.user._id)
+  console.log('11111111111111111111111');
+  console.log(coupon);
 
-  res.render('users/cart',{items,user,total,cartCOunt})
+  res.render('users/cart',{items,user,total,cartCOunt,coupon})
     
   })
   
@@ -255,10 +264,10 @@ router.get('/add-to-cart/:id',(req,res)=>{
   
 })
 
-router.post('/change-product-quantity',(req,res,next)=>{
+router.post('/change-product-quantity',async(req,res,next)=>{
   console.log(req.body);
   console.log(req.params);
-  userHelpers.changeProductQuantity(req.body).then(async(response)=>{
+ await userHelpers.changeProductQuantity(req.body).then(async(response)=>{
    response.total=await userHelpers.getTotalAmont(req.session.user._id)
     console.log(response);
     res.json(response)
@@ -329,7 +338,7 @@ router.post('/place-order',loginCheck,async(req,res)=>{
   console.log(product);
   console.log(totalPrice);
   userHelpers.placeOrder(req.body,product,totalPrice).then((response)=>{
-    res.redirect('/order-list')
+    res.redirect('/order-success')
 
   })
  
@@ -350,9 +359,10 @@ router.get('/order-list',loginCheck,(req,res)=>{
 router.get('/user-profile',loginCheck,async(req,res)=>{
   user=req.session.user
   let address=await userHelpers.getAddress(user._id)
-  console.log(address);
+  let refferalCode=await userHelpers.getreferral(req.session.user._id)
 
-  res.render('users/user-profile',{user,address})
+
+  res.render('users/user-profile',{user,address,refferalCode})
 })
 
 //........................................................edit user address...............................................
@@ -371,7 +381,7 @@ router.post('/edit-user-address/:id',(req,res)=>{
 // ............................................change password................................................
 router.get('/change-password',(req,res)=>{
  
-  res.render('users/change-password',{status:req.session.pc})
+  res.render('users/change-password',{status:req.session.pc,user:req.session.user})
   req.session.pc=""
   
 })
@@ -421,7 +431,26 @@ router.post('/verify-payment',(req,res)=>{
 router.get('/success',(req,res)=>{
   console.log(res.params);
   userHelpers.changePaymentStatus(req.session.orderId).then(()=>{
-    res.redirect('/')
+    res.redirect('/order-success')
+
+  })
+})
+
+router.get('/order-success',(req,res)=>{
+  res.render('users/order-success',{err404:true})
+})
+//.....................................................referral code............................................
+
+
+router.get('/referral-code',(req,res)=>{
+
+
+  userHelpers.generateReferralCode(req.session.user._id).then(()=>{
+   res.redirect('/user-profile')
+
+  }).catch(()=>{
+    res.redirect('/user-profile')
+    
 
   })
 })

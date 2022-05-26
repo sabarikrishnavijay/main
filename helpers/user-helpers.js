@@ -10,12 +10,14 @@ const { ObjectId } = require('mongodb');
 const { PRODUCT_COLLECTION } = require('../config/collection');
 const Razorpay=require('razorpay');
 const { resolve } = require('path');
+let referralCodeGenerator = require('referral-code-generator')
 var instance = new Razorpay({ 
      key_id: 'rzp_test_duNcjDhQWPGpIJ',  key_secret: 'JQuHfdVzeY9rSvy726jAVcH6',
     });
 
 
  const paypal = require('paypal-rest-sdk');
+const { rejects } = require('assert');
  
 paypal.configure({
   'mode': 'sandbox', //sandbox or live
@@ -96,7 +98,8 @@ module.exports = {
                 console.log(proExit);
                 if (proExit != -1) {
                     db.get().collection(collection.CART_COLLECTION)
-                        .updateOne({ _id: ObjectId(user._id), 'product.item': ObjectId(id) }, {
+                        .updateOne({ _id: ObjectId(user._id),  'product.item': ObjectId(id) }, {
+                          
                             $inc: { 'product.$.quantity': 1 }
                         }).then(() => {
                             resolve()
@@ -121,6 +124,7 @@ module.exports = {
             } else {
                 let cartObj = {
                     user: ObjectId(user._id),
+                    coupon:1,
                     product: [proObj]
                 }
                 db.get().collection(collection.CART_COLLECTION).insertOne(cartObj).then((response) => {
@@ -219,6 +223,7 @@ module.exports = {
                     $unwind: '$product'
                 }, {
                     $project: {
+                        coupon:'$coupon',
                         item: '$product.item'
                         , quantity: '$product.quantity'
                     }
@@ -233,15 +238,16 @@ module.exports = {
                 },
                 {
                     $project: {
-                        item: 1, quantity: 1, product: { $arrayElemAt: ['$product', 0] }
+                     coupon:1, item: 1, quantity: 1, product: { $arrayElemAt: ['$product', 0] }
                     }
                 },
                 {
                     $group: {
                         _id: null,
-                        total: { $sum: { $multiply: ['$quantity', '$product.Price'] } }
+                        total: { $sum: { $multiply: ['$quantity', '$product.Price','$coupon'] } }
                     }
-                }
+                },
+                 { $project: { total: { $round: [ "$total", 1] } } }
 
             ]).toArray()
             console.log(cartItems);
@@ -447,7 +453,7 @@ module.exports = {
                 },
                 "redirect_urls": {
                     "return_url": "http://localhost:3000/success",
-                    "cancel_url": "http://localhost:3000/cancel"
+                    "cancel_url": "http://localhost:3000/"
                 },
                 "transactions": [{
                     "item_list": {
@@ -487,6 +493,53 @@ module.exports = {
 
 
 
+    },
+    getbanner:()=>{
+        return new Promise(async(resolve,reject)=>{
+          let banner= await db.get().collection(collection.BANNER_COLLETION).find().toArray()
+                resolve(banner)
+          
+        })
+    },
+    getcoupon:(id)=>{
+        return new Promise(async(resolve,reject)=>{
+    db.get().collection(collection.CART_COLLECTION).findOne({user:ObjectId(id)}).then((response)=>{
+        console.log(response)
+        resolve(response.coupon)
+    })            
+        })
+    },
+    generateReferralCode:(id)=>{
+        console.log('aaaaaaaaaaaaaaaaaaaaafffffffffffffffffffffff');
+        let data={}
+        data.userid=id
+        data.referral_code=referralCodeGenerator.alpha('lowercase', 12)
+        console.log( data.referral_code);
+        return new Promise(async(resolve,reject)=>{
+            let user=await db.get().collection(collection.REFERRAL_COLLETION).findOne({userid:id})
+            if(!user){
+
+                await   db.get().collection(collection.REFERRAL_COLLETION).insertOne(data).then((response)=>{
+                    resolve(response)
+                })
+            }else
+            reject()
+        })
+    },
+    getreferral:(id)=>{
+        return new Promise(async(resolve,reject)=>{
+        
+            db.get().collection(collection.REFERRAL_COLLETION).findOne({userid:id}).then((response)=>{
+                console.log(response);
+               
+                if(response){
+                    
+
+                    resolve(response)
+                }else 
+                resolve()
+            })
+    })
     }
 
 

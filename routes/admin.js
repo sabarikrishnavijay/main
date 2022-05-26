@@ -4,7 +4,10 @@ const { response } = require('../app');
 const adminHelpers = require('../helpers/admin-helpers');
 var router = express.Router();
 var adminHelper=require('../helpers/admin-helpers')
-const store=require('../config/multer')
+const store=require('../config/multer');
+const async = require('hbs/lib/async');
+const { Db } = require('mongodb');
+const res = require('express/lib/response');
 
 //...................................middle ware..........................
 
@@ -15,11 +18,22 @@ const store=require('../config/multer')
 
 
 
+
 // ..............................route...........................
 /* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('admin/admin-home',{ admin: true })
+
+
+router.get('/', function async(req, res, next) {
+ adminHelpers.totalRevanu().then((response)=>{
+  
+  console.log(response);
+
+
+  res.render('admin/admin-home',{ admin: true ,response})
   // res.render('index', { admin:ture });
+
+ })
+
 });
 
 
@@ -212,6 +226,7 @@ router.post('/edit-images/:id',store.array('Image',12),(req,res)=>{
 
 router.get('/order-list',(req,res)=>{
   adminHelpers.getOrderList().then((orders)=>{
+    console.log(orders);
     res.render('admin/admin-order-list',{orders,admin:true,activeorder:true})
  console.log(orders);
   })
@@ -230,5 +245,115 @@ router.post('/order-update',(req,res)=>{
     res.json(response)
   })
 
+})
+// ......................................................banner...................................................................
+
+
+router.get('/banner-management',(req,res)=>{
+  adminHelpers.getBanner().then((banner)=>{
+    console.log(banner);
+    res.render('admin/banner-management',{banner,activebanner:true})
+  })
+ 
+})
+router.post('/banner',store.single('image'),(req,res)=>{
+  console.log(req.file);
+  adminHelper.addBanner(req.file).then(()=>{
+    console.log('complete');
+    res.redirect('/admin/banner-management')
+  })
+
+
+})
+router.get('/bannerdelete/:id',(req,res)=>{
+  console.log(req.params);
+  adminHelpers.delectBanner(req.params).then(()=>{
+    res.redirect('/admin/banner-management')
+  })
+
+
+})
+
+
+//getting sales data
+
+router.get('/chart',async(req,res)=>{
+
+  let dailysale=await adminHelpers.getDailyData()
+   let monthlysale=await adminHelpers.getMonthlyData()
+  let yearlysale=await adminHelpers.getYearlyData()
+// daily amount
+  let dailyAmt = [];
+  dailysale.map((daily) => {
+    dailyAmt.push(daily.totalAmount);
+
+
+  });
+  console.log(dailyAmt);
+//to get daily dates 
+let date = [];
+dailysale.map((daily) => {
+  date.push(daily._id);
+});
+console.log(date);
+ // map to get only the amount
+ let monthlyAmount = [];
+ monthlysale.map((daily) => {
+   monthlyAmount.push(daily.totalAmount);
+ });
+ // map to get only the date
+ let month = [];
+ monthlysale.map((daily) => {
+   month.push(daily._id);
+ });
+
+
+// map to get only the amount
+let yearlyAmount = [];
+yearlysale.map((daily) => {
+ yearlyAmount.push(daily.totalAmount);
+});
+
+// map to get only the year
+let year = [];
+yearlysale.map((daily) => {
+ year.push(daily._id);
+});
+
+res.json({dailyAmt,date,monthlyAmount,month,yearlyAmount,year})
+
+   
+})
+// ......................Coupon management.....................................
+
+router.get('/coupon',(req,res)=>{
+  adminHelpers.getCoupon().then((coupon)=>{
+    console.log(coupon);
+    res.render('admin/coupon',{admin:true,coupon})
+  })
+
+})
+
+router.post('/addCoupon',(req,res)=>{
+
+  console.log(req.body);
+  adminHelpers.addCouponToDataBase(req.body).then(()=>{
+    res.redirect('/admin/coupon')
+  })
+})
+
+router.post('/applycoupon',(req,res)=>{
+
+  adminHelpers.applyCoupon(req.body).then((response)=>{
+    console.log(response);
+    res.json(response)
+  })
+})
+
+router.post('/removeCoupon',(req,res)=>{
+  console.log((req.body));
+  adminHelpers.removeCoupon(req.body.userid).then((response)=>{
+    res.json(response)
+  })
 })
 module.exports = router;

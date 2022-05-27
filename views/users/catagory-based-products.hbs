@@ -63,6 +63,8 @@
                             <h3 class="product-title">{{this.Name}}</h3>
 
                             <h4 class="product-price text-success">RS:{{this.Price}}</h4>
+                            
+                            <h4 class="product-price text-danger"><s> {{this.actualPrice}} </s></h4>
                         </div>
                         <button class="btn btn-success ms-3 " onclick="addToCart('{{this._id}}')"> Add to Cart</button>
                     </div>

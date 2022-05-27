@@ -88,7 +88,7 @@
                       <label class="form-label" for="form3Examplea2">Enter your code</label> <br>
                       <button class="btn btn-success m-1" type="button" onclick="applyCoupon('{{user._id}}')">Apply
                         coupon</button>
-                      {{#if_eq coupon 1}}
+                      {{#if_eq coupon 0}}
                       {{else}}
                       <div>
                         <p><b class="text-success"> Coupon applied </b> <button class="btn" type="button" id="removebtn"
@@ -106,14 +106,14 @@
                       <label class="form-label" for="form3Examplea2">Enter your referral code</label> <br>
                       <button class="btn btn-success m-1" type="button" onclick="applyreFerral('{{user._id}}')">Apply
                         code</button>
-                      {{#if_eq coupon 1}}
+                      {{!-- {{#if coupon }}
                       {{else}}
                       <div>
                         <p><b class="text-success"> Coupon applied </b> <button class="btn" type="button" id="removebtn"
                             onclick="removeCoupon('{{user._id}}')"> <span class="text-danger"> <i
                                 class="bi bi-x-octagon"></i></span> </button></p>
                       </div>
-                      {{/if_eq}}
+                      {{/if}} --}}
                     </div>
                   </div>
 

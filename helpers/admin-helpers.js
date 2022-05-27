@@ -73,6 +73,7 @@ module.exports = {
     },
     Category: (data) => {
         return new Promise(async (resolve, reject) => {
+            data.offers = parseInt(data.offers)
             db.get().collection(collection.CATAGORY_COLLECTION).insertOne(data).then((response) => {
                 resolve(response)
                 console.log(response);
@@ -107,7 +108,7 @@ module.exports = {
         body.images = files
         body.Price = parseInt(body.Price)
         return new Promise((resolve, reject) => {
-            db.get().collection(collection.PRODUCT_COLLECTION).insertOne(body).then((response) => {
+            db.get().collection(collection.PRODUCT2_COLLECTION).insertOne(body).then((response) => {
                 resolve(response);
             })
         })
@@ -137,7 +138,7 @@ module.exports = {
     },
     updateProductWithFiles: (id, files) => {
         return new Promise((resolve, reject) => {
-            db.get().collection(collection.PRODUCT_COLLECTION).updateOne({ _id: objectId(id) }, {
+            db.get().collection(collection.PRODUCT2_COLLECTION).updateOne({ _id: objectId(id) }, {
                 $set: {
                     images: files
 
@@ -149,7 +150,7 @@ module.exports = {
 
     }, updateProduct: (id, body) => {
         return new Promise((resolve, reject) => {
-            db.get().collection(collection.PRODUCT_COLLECTION).updateOne({ _id: objectId(id) }, {
+            db.get().collection(collection.PRODUCT2_COLLECTION).updateOne({ _id: objectId(id) }, {
                 $set: {
                     Name: body.Name,
                     Catagory: body.Catagory,
@@ -409,41 +410,42 @@ module.exports = {
     },
     applyCoupon: (data) => {
         return new Promise(async (resolve, reject) => {
-       
-            
 
 
-                let coupon = await db.get().collection(collection.COUPON_COLLETION).findOne({ coupon: data.enteredcoupon })
-                if (coupon) {
-             
-                    let response = {}
 
-                    let offer = parseInt(coupon.percentage) / 100 // change into point value lessthan 1 .
-                  
-                    let offerprice = 1 - offer //1 is the default value in cart coupon.
-                    console.log(offerprice);
-                    await db.get().collection(collection.CART_COLLECTION).updateOne({ user: ObjectId(data.userid) }, {
 
-                        $set: { 
-                            coupon: offerprice,
-                            couponName:coupon.coupon
-                             }
+            let coupon = await db.get().collection(collection.COUPON_COLLETION).findOne({ coupon: data.enteredcoupon })
+            if (coupon) {
 
-                    }).then(async () => {
+                let response = {}
 
-                       
+                let offer = parseInt(coupon.percentage) / 100 // change into point value lessthan 1 .
 
-                        response.status = true
-                        resolve(response)
-                    })
+                let offerprice = 1 - offer //1 is the default value in cart at coupon.
+                console.log(offerprice);
+                await db.get().collection(collection.CART_COLLECTION).updateOne({ user: ObjectId(data.userid) }, {
 
-                }
-                else {
-                    console.log('no coupon');
-                    resolve({ status: false })
-                }
+                    $set: {
+                        coupon: offerprice,
+                        couponName: coupon.coupon,
+                        couponnum:1
+                    }
 
-            
+                }).then(async () => {
+
+
+
+                    response.status = true
+                    resolve(response)
+                })
+
+            }
+            else {
+                console.log('no coupon');
+                resolve({ status: false })
+            }
+
+
         })
     },
     removeCoupon: (id) => {
@@ -451,7 +453,8 @@ module.exports = {
             let usercart = await db.get().collection(collection.CART_COLLECTION).updateOne({ user: ObjectId(id) }, {
                 $set: {
                     coupon: 1,
-                    couponName:""
+                    couponName: "",
+                    couponnum:0
 
                 }
             }).then((response) => {
@@ -461,32 +464,70 @@ module.exports = {
 
         })
     },
-    checkUsedCoupon:(data)=>{
-        return new Promise(async(resolve,reject)=>{
+    checkUsedCoupon: (data) => {
+        return new Promise(async (resolve, reject) => {
             let used = await db.get().collection(collection.USED_CODE_COLLETION).aggregate([
                 {
-                    $unwind:"$coupon"
+                    $unwind: "$coupon"
                 },
-                
+
 
                 {
-                    $match:{userID:ObjectId( data.userid)},
-                    
-                    
+                    $match: { userID: ObjectId(data.userid) },
+
+
                 },
                 {
-                     $match:{coupon:data.enteredcoupon}
+                    $match: { coupon: data.enteredcoupon }
                 }
-            ]).toArray().then((response)=>{
+            ]).toArray().then((response) => {
                 console.log('sdklfjlasdhjfkahjsdlkfjvhadflkjajldfsnklja');
                 console.log(response);
-                if(response.length==0)
-                resolve({status:true})
-                else{
-                    resolve({usedStatus:true})
+                if (response.length == 0)
+                    resolve({ status: true })
+                else {
+                    resolve({ usedStatus: true })
                 }
             })
-            
+
+        })
+    },
+    updateOffers: (data) => {
+        return new Promise(async (resolve, reject) => 
+        {
+            let product = await db.get().collection(collection.PRODUCT2_COLLECTION).aggregate([
+                {
+                    $match: { Catagory: data.data }
+                }, {
+                    $lookup: {
+                        from: collection.CATAGORY_COLLECTION,
+                        localField: "Catagory",
+                        foreignField: "Name",
+                        as: "offers"
+                    }
+                },
+                {
+                    $unwind: "$offers"
+                }
+            ]).toArray()
+            console.log(product);
+
+            product.map(async (value, index) => {
+                let id = value._id
+
+                let offer = 1 - (value.offers.offers / 100)
+                let actualPrice = value.Price
+                let offerPrice = parseInt(offer * value.Price)
+                await db.get().collection(collection.PRODUCT_COLLECTION).updateMany({ _id: ObjectId(id) }, {
+                    $set: {
+                        Price: offerPrice,
+                        actualPrice: actualPrice,
+
+                    }
+                });
+
+            })
+
         })
     }
 

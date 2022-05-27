@@ -370,4 +370,9 @@ router.post('/removeCoupon', (req, res) => {
     res.json(response)
   })
 })
+
+router.get('/updateoffers/:data',(req,res)=>{
+  console.log(req.params);
+  adminHelper.updateOffers(req.params)
+})
 module.exports = router;

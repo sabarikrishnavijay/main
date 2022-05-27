@@ -239,7 +239,7 @@ router.get('/cart',loginCheck,async(req,res)=>{
   let products=userHelpers.getCartProduts(req.session.user._id).then(async(items)=>{
   let total=await userHelpers.getTotalAmont(req.session.user._id)
   req.session.count=cartCOunt
-  let coupon=await userHelpers.getcoupon(req.session.user._id)
+  let coupon=await userHelpers.getcoupon(req.session.user._id)||0
   console.log('11111111111111111111111');
   console.log(coupon);
 
@@ -356,6 +356,15 @@ router.get('/order-list',loginCheck,(req,res)=>{
     console.log(order);
 
     res.render('users/order-list',{order,user})
+  })
+})
+// ........................................................cancel order...............................................................
+router.post("/order-remove",(req,res)=>{
+  userHelpers.removeOrder(req.body).then((response)=>{
+    res.json(response)
+  }).catch((response)=>{
+    res.json(response)
+    
   })
 })
 

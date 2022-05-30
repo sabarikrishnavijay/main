@@ -252,7 +252,7 @@ router.post('/order-update', (req, res) => {
 router.get('/banner-management', (req, res) => {
   adminHelpers.getBanner().then((banner) => {
     console.log(banner);
-    res.render('admin/banner-management', { banner, activebanner: true })
+    res.render('admin/banner-management', { banner, activebanner: true,admin:true })
   })
 
 })
@@ -265,10 +265,11 @@ router.post('/banner', store.single('image'), (req, res) => {
 
 
 })
-router.get('/bannerdelete/:id', (req, res) => {
-  console.log(req.params);
-  adminHelpers.delectBanner(req.params).then(() => {
-    res.redirect('/admin/banner-management')
+router.post('/bannerdelete', (req, res) => {
+  console.log(req.body);
+ 
+  adminHelpers.delectBanner(req.body.id).then((response) => {
+    res.json(response)
   })
 
 
@@ -329,7 +330,7 @@ router.get('/chart', async (req, res) => {
 router.get('/coupon', (req, res) => {
   adminHelpers.getCoupon().then((coupon) => {
     console.log(coupon);
-    res.render('admin/coupon', { admin: true, coupon })
+    res.render('admin/coupon', { admin: true, coupon ,activecoupon:true})
   })
 
 })
@@ -363,6 +364,12 @@ router.post('/applycoupon', async(req, res)=> {
 
 
 })
+router.get('/delete-coupon/:id',(req,res)=>{
+  console.log(req.params);
+  adminHelpers.deleteCoupon(req.params).then(()=>{
+    res.redirect("/admin/coupon")
+  })
+})
 
 router.post('/removeCoupon', (req, res) => {
   console.log((req.body));
@@ -373,6 +380,14 @@ router.post('/removeCoupon', (req, res) => {
 
 router.get('/updateoffers/:data',(req,res)=>{
   console.log(req.params);
-  adminHelper.updateOffers(req.params)
+  adminHelper.updateOffers(req.params).then(()=>{
+    res.redirect('/admin/view-catagory')
+  })
+})
+
+// ...............................sales report.......................
+router.get('/sales-report',(req,res)=>{
+
+  res.render('admin/sales-report',{admin:true})
 })
 module.exports = router;

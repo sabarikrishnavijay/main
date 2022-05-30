@@ -237,13 +237,17 @@ router.get('/cart',loginCheck,async(req,res)=>{
   user=req.session.user
   cartCOunt= await userHelpers.getCartCount(req.session.user._id)
   let products=userHelpers.getCartProduts(req.session.user._id).then(async(items)=>{
-  let total=await userHelpers.getTotalAmont(req.session.user._id)
+  let total=await userHelpers.getTotalAmont(req.session.user._id)||0
+
+ total= total.totalAmout||0
+
+  
   req.session.count=cartCOunt
   let coupon=await userHelpers.getcoupon(req.session.user._id)||0
-  console.log('11111111111111111111111');
-  console.log(coupon);
+  let wallet=await userHelpers.getWalletcart(req.session.user._id)||await userHelpers.getWallet(req.session.user._id)||0
+  
 
-  res.render('users/cart',{items,user,total,cartCOunt,coupon})
+  res.render('users/cart',{items,user,total,cartCOunt,coupon,wallet})
     
   })
   
@@ -252,12 +256,12 @@ router.get('/cart',loginCheck,async(req,res)=>{
 
 router.get('/add-to-cart/:id',async(req,res)=>{
   if(req.session.user){
-
+    let wallet=await userHelpers.getWallet(req.session.user._id)||0
     let product=await userHelpers.getProduct(req.params.id)
     console.log(product);
     console.log("api call");
     console.log(req.params.id,req.session.user);
-    userHelpers.addToCart(req.params.id,req.session.user,product).then(()=>{
+    userHelpers.addToCart(req.params.id,req.session.user,product,wallet).then(()=>{
      res.json({status:true})
     })
   }else{
@@ -270,7 +274,9 @@ router.post('/change-product-quantity',async(req,res,next)=>{
   console.log(req.body);
   console.log(req.params);
  await userHelpers.changeProductQuantity(req.body).then(async(response)=>{
-   response.total=await userHelpers.getTotalAmont(req.session.user._id)
+   let total=await userHelpers.getTotalAmont(req.session.user._id)
+  
+   response.total=total.totalAmout
     console.log(response);
     res.json(response)
 
@@ -281,7 +287,7 @@ router.get('/check-out',loginCheck,async(req,res)=>{
   user=req.session.user
   cartCOunt=req.session.count
   let total= await userHelpers.getTotalAmont(req.session.user._id)
-console.log(total);
+ total= total.totalAmout
   res.render('users/check-out',{total,user,cartCOunt})
  // res.render('users/saved-address',{total,user})
 
@@ -289,6 +295,7 @@ console.log(total);
 
 router.get('/saved-address',async(req,res)=>{
   let total= await userHelpers.getTotalAmont(req.session.user._id)
+  total= total.totalAmout
   userHelpers.getAddress(req.session.user._id).then((address)=>{
     res.render('users/saved-address',{address,total})
   })
@@ -301,9 +308,10 @@ router.post('/saved-address',loginCheck,async(req,res)=>{
   let address=await userHelpers.getAddressDetails(req.body.addressid)
   let product=await userHelpers.getCartProductList2(address.userId)
 
-  let totalPrice= await userHelpers.getTotalAmont(address.userId)
+  let totalPriceObject= await userHelpers.getTotalAmont(address.userId)
+  totalPrice= totalPriceObject.totalAmout
   req.session.total=totalPrice
-  userHelpers.savedAddressOrder(address,req.body,address.userId,totalPrice,product,usedCoupons).then((response)=>{
+  userHelpers.savedAddressOrder(address,req.body,address.userId,totalPrice,product,usedCoupons,totalPriceObject).then((response)=>{
     let orderId=response.insertedId
     req.session.orderId=orderId
     
@@ -338,6 +346,7 @@ router.post('/place-order',loginCheck,async(req,res)=>{
   console.log(req.body);
   let product=await userHelpers.getCartProductList(req.session.user)
   let totalPrice= await userHelpers.getTotalAmont(req.session.user._id)
+  totalPrice= totalPrice.totalAmout
   console.log(product);
   console.log(totalPrice);
   userHelpers.placeOrder(req.body,product,totalPrice).then((response)=>{
@@ -360,7 +369,8 @@ router.get('/order-list',loginCheck,(req,res)=>{
 })
 // ........................................................cancel order...............................................................
 router.post("/order-remove",(req,res)=>{
-  userHelpers.removeOrder(req.body).then((response)=>{
+  user=req.session.user._id
+  userHelpers.removeOrder(req.body,user).then((response)=>{
     res.json(response)
   }).catch((response)=>{
     res.json(response)
@@ -373,9 +383,10 @@ router.get('/user-profile',loginCheck,async(req,res)=>{
   user=req.session.user
   let address=await userHelpers.getAddress(user._id)
   let refferalCode=await userHelpers.getreferral(req.session.user._id)
+  let wallet=await userHelpers.getWallet(req.session.user._id)||0
 
 
-  res.render('users/user-profile',{user,address,refferalCode})
+  res.render('users/user-profile',{user,address,refferalCode,wallet})
 })
 
 //........................................................edit user address...............................................

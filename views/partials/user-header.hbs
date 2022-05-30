@@ -1,13 +1,19 @@
 <div class="topbar container-fluid">
-
+<div>
+  <P>
+    <B>Free Shipping on All Orders |</B>
+     Get Extra 50% OFF  Use Code: SUPER50
+  </P>
+</div>
 </div>
 
 <div class="second-navbar container-fluid " >
-<div class="login d-flex " >
+<div class="login d-flex flex-row-reverse container" >
   {{#if user}}
-
-  <h3 class="logintext text-light"><a href="/user-profile">{{user.Name}}</a> </h3>
-  <a class="ps-3" href="/logout">Logout</a>
+ <a class="ps-3" href="/logout">Logout <i class="bi bi-box-arrow-right"></i></a>
+  <h3 class="logintext text-light">
+    </i> <a href="/user-profile"><i class="bi bi-person"></i> {{user.Name}}</a> </h3>
+ 
   {{else}}
   
   <a href="/login"> <h3 class="logintext text-light"> Login /Signup</h3> </a> 
@@ -58,3 +64,9 @@
     </div>
   </div>
 </nav>
+<style>
+  a{
+    text-decoration: none;
+    color: azure;
+   font-size: medium;
+</style>

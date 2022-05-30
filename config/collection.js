@@ -9,7 +9,8 @@ module.exports={
    BANNER_COLLETION:"banner",
    COUPON_COLLETION:"coupon",
    REFERRAL_COLLETION:"referral code",
-   USED_CODE_COLLETION:"used code"
+   USED_CODE_COLLETION:"used code",
+   WALLET_COLLETION:"wallet"
 
    
 }

@@ -32,7 +32,7 @@
           </div>
         </div>
       </div>
-      <div class="card-body p-4">
+      <div class="card-body p-4"  style="background-color:rgb(255, 255, 255); ">
         <div class="d-flex mb-4 pb-2">
           <div class="d-flex ">
             {{#each products}}
@@ -69,7 +69,7 @@
           <h5 class="fw-normal mb-0">Status: <span>{{this.status}}</span></h5>
           {{#if_eq this.status "cancelled"}}
           {{else}}
-          <h5 class="fw-normal mb-0">Cancel: <a class="btn text-danger" onclick="removeOrder('{{this._id}}')"><i
+          <h5 class="fw-normal mb-0">Cancel: <a class="btn text-danger" onclick="removeOrder('{{this._id}}','{{this.total}}')"><i
                 class="bi bi-x-circle"></i></a></h5>
                 {{/if_eq}}
           <div class="border-start h-100"></div>
@@ -86,7 +86,7 @@
 </section>
 <script>
 
-  function removeOrder(id) {
+  function removeOrder(id,total) {
     alert(id)
     Swal.fire({
       title: 'Are you sure?',
@@ -108,11 +108,12 @@
               $.ajax({
       url: '/order-remove',
       data: {
-        id: id
+        id: id,
+        total:total
       },
       method: "post",
       success: (response) => {
-
+        location.reload()
       }
     })
           }

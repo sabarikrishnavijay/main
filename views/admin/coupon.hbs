@@ -3,7 +3,7 @@
 
 <!-- Button trigger modal -->
 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-  Launch demo modal
+  Add Coupon
 </button>
 
 <!-- Modal -->
@@ -20,6 +20,8 @@
           <input type="text" name="coupon"  class="form-control">
           <label for="">Enter the percentage</label>
           <input type="number" name="percentage"  class="form-control">
+          <label for="">Enter offer end date</label>
+          <input type="date" name="endoffer"  class="form-control">
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -43,7 +45,8 @@
       <th scope="col">#</th>
       <th scope="col">NAME</th>
       <th scope="col">OFFER</th>
-      <th scope="col">Handle</th>
+      <th scope="col">date</th>
+      <th scope="col">delete</th>
     </tr>
   </thead>
   <tbody>
@@ -52,6 +55,8 @@
       <th scope="row">{{@index}}</th>
       <td>{{this.coupon}}</td>
       <td>{{this.percentage}}%</td>
+      <td>{{this.endoffer}}</td>
+      <td><a class="btn btn-danger" href="/admin/delete-coupon/{{this._id}}">delete</a></td>
   
     </tr>
     {{/each}}

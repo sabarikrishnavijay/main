@@ -50,18 +50,25 @@
 
             </div>
 
-       {{#if refferalCode}}
-       <P> Referral Code</P>
-<!-- The text field -->
-<input type="text" value="{{refferalCode.referral_code}}" id="myInput">
+            {{#if refferalCode}}
+            <P> Referral Code</P>
+            <!-- The text field -->
+            <input type="text" value="{{refferalCode.referral_code}}" id="myInput">
 
-<!-- The button used to copy the text -->
-<button class="btn btn-success" onclick="myFunction()"><i class="bi bi-clipboard-plus"></i></button>
+            <!-- The button used to copy the text -->
+            <button class="btn btn-success" onclick="myFunction()"><i class="bi bi-clipboard-plus"></i></button>
 
             {{else}}
 
-                    <a class="btn btn-success" id="referral" href="/referral-code" > Generate Referral Code</a>
-                   {{/if}}
+            <a class="btn btn-success" id="referral" href="/referral-code"> Generate Referral Code</a>
+            {{/if}}
+
+
+            <div class="wallet m-5">
+                <P  class="text-success walletRs">wallet</P>
+                <p class="walletRs">Rs:{{wallet}}</p>
+
+            </div>
 
 
         </div>
@@ -123,22 +130,40 @@
         cursor: pointer;
         border: solid 1px #BA68C8
     }
+
+    .wallet {
+        width: 100px;
+        height: 100px;
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        border-radius: 26px;
+        background: #ffffff;
+        box-shadow: 5px 5px 5px #d0d0d0,
+            -5px -5px 5px #f0f0f0;
+    }
+    .walletRs{
+        font-weight: 600;
+       
+        display: flex;
+        justify-content: center;
+    }
 </style>
 
 <script>
 
-function myFunction() {
-  /* Get the text field */
-  var copyText = document.getElementById("myInput");
+    function myFunction() {
+        /* Get the text field */
+        var copyText = document.getElementById("myInput");
 
-  /* Select the text field */
-  copyText.select();
-  copyText.setSelectionRange(0, 99999); /* For mobile devices */
+        /* Select the text field */
+        copyText.select();
+        copyText.setSelectionRange(0, 99999); /* For mobile devices */
 
-   /* Copy the text inside the text field */
-  navigator.clipboard.writeText(copyText.value);
+        /* Copy the text inside the text field */
+        navigator.clipboard.writeText(copyText.value);
 
-  /* Alert the copied text */
-  alert("Copied the text: " + copyText.value);
-}
+        /* Alert the copied text */
+        alert("Copied the text: " + copyText.value);
+    }
 </script>

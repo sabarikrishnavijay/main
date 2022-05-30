@@ -10,6 +10,7 @@ var swal=require('sweetalert2')
 
 var adminRouter = require('./routes/admin');
 var usersRouter = require('./routes/users');
+const pdfRouter = require('./routes/pdfgenerator');
  
 var app = express();
 
@@ -50,11 +51,12 @@ db.connect((err)=>{
 
 app.use('/', usersRouter);
 app.use('/admin', adminRouter);
+app.use('/pdf', pdfRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   res.render('404',{err404:true})
- // next(createError(404));
+  // next(createError(404));
 });
 
 // error handler

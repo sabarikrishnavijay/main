@@ -197,6 +197,17 @@ module.exports = {
             total = await db.get().collection(collection.ORDER_COLLETION).aggregate([
 
                 {
+                    $match: {
+
+
+                        "status": { $ne: "cancelled" }
+
+
+
+                    },
+                },
+
+                {
                     $group: {
                         _id: null,
                         revenu: { $sum: "$total" }
@@ -296,8 +307,8 @@ module.exports = {
     },
     delectBanner: (data) => {
         return new Promise((resolve, reject) => {
-            db.get().collection(collection.BANNER_COLLETION).remove({ _id: ObjectId(data.id) }).then(() => {
-                resolve()
+            db.get().collection(collection.BANNER_COLLETION).remove({ _id: ObjectId(data) }).then(() => {
+                resolve({status:true})
             })
         })
     },
@@ -310,7 +321,12 @@ module.exports = {
                 .aggregate([
                     {
                         $match: {
-                            status: "Placed",
+
+
+                            "status": { $ne: "cancelled" }
+
+
+
                         },
                     },
                     {
@@ -339,7 +355,12 @@ module.exports = {
                 .aggregate([
                     {
                         $match: {
-                            status: "Placed",
+
+
+                            "status": { $ne: "cancelled" }
+
+
+
                         },
                     },
                     {
@@ -369,7 +390,12 @@ module.exports = {
                 .aggregate([
                     {
                         $match: {
-                            status: "Placed",
+
+
+                            "status": { $ne: "cancelled" }
+
+
+
                         },
                     },
                     {
@@ -382,9 +408,7 @@ module.exports = {
                     {
                         $sort: { _id: 1 },
                     },
-                    {
-                        $limit: 7,
-                    },
+
                 ])
                 .toArray();
             console.log("year");
@@ -415,29 +439,44 @@ module.exports = {
 
 
             let coupon = await db.get().collection(collection.COUPON_COLLETION).findOne({ coupon: data.enteredcoupon })
+
             if (coupon) {
+                let date = new Date()
+                date = date.toISOString().split('T')[0]
+                console.log(date);
+                if (date < coupon.endoffer) {
+                    let response = {}
 
-                let response = {}
+                    let offer = parseInt(coupon.percentage) / 100 // change into point value lessthan 1 .
 
-                let offer = parseInt(coupon.percentage) / 100 // change into point value lessthan 1 .
+                    let offerprice = 1 - offer //1 is the default value in cart at coupon.
+                    console.log(offerprice);
+                    await db.get().collection(collection.CART_COLLECTION).updateOne({ user: ObjectId(data.userid) }, {
 
-                let offerprice = 1 - offer //1 is the default value in cart at coupon.
-                console.log(offerprice);
-                await db.get().collection(collection.CART_COLLECTION).updateOne({ user: ObjectId(data.userid) }, {
+                        $set: {
+                            coupon: offerprice,
+                            couponName: coupon.coupon,
+                            couponnum: 1
+                        }
 
-                    $set: {
-                        coupon: offerprice,
-                        couponName: coupon.coupon,
-                        couponnum:1
-                    }
-
-                }).then(async () => {
+                    }).then(async () => {
 
 
 
-                    response.status = true
-                    resolve(response)
-                })
+                        response.status = true
+                        resolve(response)
+                    })
+
+                } else {
+                    console.log('no coupon');
+                    resolve({ status: false })
+                }
+
+
+
+
+
+
 
             }
             else {
@@ -454,7 +493,7 @@ module.exports = {
                 $set: {
                     coupon: 1,
                     couponName: "",
-                    couponnum:0
+                    couponnum: 0
 
                 }
             }).then((response) => {
@@ -481,7 +520,7 @@ module.exports = {
                     $match: { coupon: data.enteredcoupon }
                 }
             ]).toArray().then((response) => {
-                console.log('sdklfjlasdhjfkahjsdlkfjvhadflkjajldfsnklja');
+
                 console.log(response);
                 if (response.length == 0)
                     resolve({ status: true })
@@ -493,8 +532,7 @@ module.exports = {
         })
     },
     updateOffers: (data) => {
-        return new Promise(async (resolve, reject) => 
-        {
+        return new Promise(async (resolve, reject) => {
             let product = await db.get().collection(collection.PRODUCT2_COLLECTION).aggregate([
                 {
                     $match: { Catagory: data.data }
@@ -527,7 +565,15 @@ module.exports = {
                 });
 
             })
+            resolve()
 
+        })
+    },
+    deleteCoupon: (id) => {
+        return new Promise((resolve, reject) => {
+            db.get().collection(collection.COUPON_COLLETION).remove({ _id: ObjectId(id.id) }).then(() => {
+                resolve()
+            })
         })
     }
 

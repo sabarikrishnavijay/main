@@ -3,7 +3,7 @@ var Collection = require('../config/collection')
 const bcrypt = require('bcrypt');
 const collection = require('../config/collection');
 const async = require('hbs/lib/async');
-const { status } = require('express/lib/response');
+const { status, get } = require('express/lib/response');
 const { response } = require('../app');
 const { promise, reject } = require('bcrypt/promises');
 const { ObjectId } = require('mongodb');
@@ -85,14 +85,14 @@ module.exports = {
             resolve(product)
         })
     },
-    addToCart: (id, user, product) => {
+    addToCart: (id, user, product, wallet) => {
         let proObj = {
             item: ObjectId(id),
             quantity: 1,
             productName: product.Name,
             productPrice: product.Price,
             productImage: product.images,
-        
+
 
         }
         return new Promise(async (resolve, reject) => {
@@ -130,7 +130,8 @@ module.exports = {
                     user: ObjectId(user._id),
                     coupon: 1,
                     product: [proObj],
-                   couponnum:0
+                    couponnum: 0,
+                    wallet: wallet
                 }
                 db.get().collection(collection.CART_COLLECTION).insertOne(cartObj).then((response) => {
                     resolve()
@@ -218,6 +219,72 @@ module.exports = {
 
     },
     getTotalAmont: (userId) => {
+        return new Promise(async (resolve, reject) => {
+            let cartItems = await db.get().collection(collection.CART_COLLECTION).aggregate([
+                {
+                    $match: { user: ObjectId(userId) }
+                },
+
+                {
+                    $unwind: '$product'
+                }, {
+                    $project: {
+                        coupon: '$coupon',
+                        item: '$product.item'
+                        , quantity: '$product.quantity',
+                        wallet: '$wallet'
+                    }
+                },
+                {
+                    $lookup: {
+                        from: collection.PRODUCT_COLLECTION,
+                        localField: 'item',
+                        foreignField: '_id',
+                        as: 'product'
+                    }
+                },
+                {
+                    $project: {
+                        wallet: 1, coupon: 1, item: 1, quantity: 1, product: { $arrayElemAt: ['$product', 0] }
+                    }
+                },
+                {
+                    $group: {
+                        _id: null,
+                        total: { $sum: { $multiply: ['$quantity', '$product.Price', '$coupon'] } }
+                    }
+                },
+                { $project: { total: { $round: ["$total", 1] } } }
+
+            ]).toArray()
+            console.log(cartItems);
+            let total = cartItems[0]?.total || 0
+            let cartWallet = await db.get().collection(collection.CART_COLLECTION).findOne({ user: ObjectId(userId) }).then((response) => {
+                if (response) {
+
+
+                    walletBalance = response.wallet - total
+                    totalAmout = total - response.wallet
+                    if (totalAmout < 0) {
+                        totalAmout = 0
+                        resolve({ totalAmout, walletBalance })
+                    } else {
+                        resolve({ totalAmout, walletBalance })
+
+                    }
+
+                }
+                resolve()
+
+            })
+
+
+
+        })
+
+    },
+    // total before wallet
+    getTotalAmontTBefore: (userId) => {
         return new Promise(async (resolve, reject) => {
             let cartItems = await db.get().collection(collection.CART_COLLECTION).aggregate([
                 {
@@ -338,9 +405,9 @@ module.exports = {
             resolve(address)
         })
 
-    }, savedAddressOrder: (address, data, id, total, product, usedCoupons) => {
+    }, savedAddressOrder: (address, data, id, total, product, usedCoupons, totalPriceObject) => {
         return new Promise(async (resolve, reject) => {
-            let status = data.paymentmethod === 'COD' ? 'Placed' : 'Pending'
+            let status = data.paymentmethod === 'COD' ? 'placed' : 'Pending'
             let orderObj = {
                 deliveryDetails: address,
                 userId: ObjectId(id),
@@ -376,6 +443,20 @@ module.exports = {
                 }
 
                 await db.get().collection(collection.CART_COLLECTION).remove({ user: ObjectId(id) })
+
+                if (totalPriceObject.walletBalance < 0) {
+                    await db.get().collection(collection.WALLET_COLLETION).updateOne({ userid: ObjectId(id) }, {
+                        $set: { wallet: 0 }
+                    })
+
+                } else {
+                    await db.get().collection(collection.WALLET_COLLETION).updateOne({ userid: ObjectId(id) }, {
+                        $set: { wallet: totalPriceObject.walletBalance }
+                    })
+
+                }
+
+
 
                 console.log(response);
                 resolve(response)
@@ -588,10 +669,10 @@ module.exports = {
 
                     })
 
-                }else{
+                } else {
                     console.log('failed');
                     resolve({ status: false })
-                    
+
                 }
             }
             else {
@@ -609,16 +690,47 @@ module.exports = {
             })
         })
     },
-    removeOrder:(data)=>{
-        return new Promise(async(resolve,reject)=>{
-           await db.get().collection(collection.ORDER_COLLETION).updateOne({_id:ObjectId(data.id)},{
-                $set:{
-                    status:"cancelled"
+    removeOrder: (data, id) => {
+        return new Promise(async (resolve, reject) => {
+            await db.get().collection(collection.ORDER_COLLETION).updateOne({ _id: ObjectId(data.id) }, {
+                $set: {
+                    status: "cancelled"
                 }
-            }).then(()=>{
-                resolve({status:true})
-            }).catch(()=>{
-                reject({status:false})
+            }).then(async () => {
+                let user = await db.get().collection(collection.WALLET_COLLETION).findOne({ userid: ObjectId(id) })
+                if (user) {
+                    let newtotal = parseInt(user.wallet) + parseInt(data.total)
+                    await db.get().collection(collection.WALLET_COLLETION).updateOne({ userid: ObjectId(id) }, {
+                        $set: {
+                            wallet: newtotal
+                        }
+                    })
+
+                } else {
+                    let wallet = {}
+                    wallet.userid = ObjectId(id)
+                    wallet.wallet = parseInt(data.total)
+                    await db.get().collection(collection.WALLET_COLLETION).insertOne(wallet)
+
+                }
+                resolve({ status: true })
+            }).catch(() => {
+                reject({ status: false })
+            })
+        })
+    },
+    getWallet: (id) => {
+        return new Promise(async (resolve, reject) => {
+            let wallet = await db.get().collection(collection.WALLET_COLLETION).findOne({ userid: ObjectId(id) }).then((response) => {
+                console.log(response);
+                resolve(response?.wallet)
+            })
+        })
+    },
+    getWalletcart: (id) => {
+        return new Promise((resolve, reject) => {
+            db.get().collection(collection.CART_COLLECTION).findOne({ user: ObjectId(id) }).then((response) => {
+                resolve(response?.wallet)
             })
         })
     }

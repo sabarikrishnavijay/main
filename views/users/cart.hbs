@@ -120,7 +120,20 @@
                   <hr class="my-4">
 
                   <div class="d-flex justify-content-between mb-5">
-                    <h5 class="text-uppercase">Total price</h5>
+                    <h5 class="text-uppercase">Wallet Balance</h5>
+                    <h5>RS. <span >{{wallet}}</span></h5>
+                  </div>
+                  <hr class="my-4">
+
+                  <div class="d-flex-row justify-content-center mb-5">
+                    <p>  <span class="text-danger">*</span><span style="font-size: xx-small; font-weight: 900;" class="text-success">Total price to pay = total Price - wallet balance</span><span class="text-danger">*</span></p>
+                    
+               
+                  </div>
+                  <div class="d-flex justify-content-between mb-5">
+                   
+                    
+                    <h5 class="text-uppercase">Total price to pay</h5>
                     <h5>RS. <span id="total">{{total}}</span></h5>
                   </div>
 
@@ -180,6 +193,7 @@
   function changeQuantity(cartId, proId, qty, count) {
     let qnty = document.getElementById(proId).innerHTML
 
+
     $.ajax({
       url: '/change-product-quantity',
       data: {
@@ -228,58 +242,66 @@
 
   function applyCoupon(id) {
     let coupon = document.getElementById('coupon').value
+    if (coupon == '') {
+      Swal.fire(
+        'Enter your coupon',
+        'You clicked the button!',
+        'error'
+      )
+    } else {
 
 
-    $.ajax({
-      url: '/admin/applycoupon',
-      data: {
-        userid: id,
-        enteredcoupon: coupon
+      $.ajax({
+        url: '/admin/applycoupon',
+        data: {
+          userid: id,
+          enteredcoupon: coupon
 
-      },
-      method: 'post',
-      success: (response) => {
-        if (response.status) {
-          Swal.fire({
-
-            icon: 'success',
-            title: 'Coupon is applyed',
-
-           
-            confirmButtonText: 'ok',
-          }).then((result) => {
-            console.log(result)
-            if (result.isConfirmed) {
-
-              location.reload();
-            }
-          })
-
-        } else if (response.usedStatus) { 
+        },
+        method: 'post',
+        success: (response) => {
+          if (response.status) {
             Swal.fire({
 
-            icon: 'error',
-            title: 'Already used',
+              icon: 'success',
+              title: 'Coupon is applyed',
 
-            timer: 1500,
-            confirmButtonText: 'ok',
-          })
+
+              confirmButtonText: 'ok',
+            }).then((result) => {
+              console.log(result)
+              if (result.isConfirmed) {
+
+                location.reload();
+              }
+            })
+
+          } else if (response.usedStatus) {
+            Swal.fire({
+
+              icon: 'error',
+              title: 'Already used',
+
+              timer: 1500,
+              confirmButtonText: 'ok',
+            })
+          }
+
+          else {
+
+            Swal.fire({
+
+              icon: 'error',
+              title: 'No coupon available',
+
+              timer: 1500,
+              confirmButtonText: 'ok',
+            })
+
+          }
         }
-
-        else {
-
-          Swal.fire({
-
-            icon: 'error',
-            title: 'No coupon available',
-
-            timer: 1500,
-            confirmButtonText: 'ok',
-          })
-
-        }
-      }
-    })
+      })
+    }
   }
 
   function removeCoupon(id) {
@@ -296,7 +318,7 @@
             icon: 'success',
             title: 'Coupon is removed',
 
-          
+
             confirmButtonText: 'ok',
           }).then((result) => {
             console.log(result)
@@ -314,55 +336,65 @@
   }
   function applyreFerral(id) {
     let referralcode = document.getElementById('referral').value
+    if (referralcode == '') {
+      Swal.fire(
+        'Enter your referral code',
+        'You clicked the button!',
+        'error'
+      )
+    } else {
 
-    $.ajax({
-      url: '/referral-code',
-      data: {
-        userid: id,
-        referralCode: referralcode
-      },
-      method: "post",
-      success: (response) => {
-        if (response.status) {
-          Swal.fire({
 
-            icon: 'success',
-            title: 'Coupon is removed',
 
-            timer: 1500,
-            confirmButtonText: 'ok',
-          }).then((result) => {
-            console.log(result)
-            if (result.isConfirmed) {
+      $.ajax({
+        url: '/referral-code',
+        data: {
+          userid: id,
+          referralCode: referralcode
+        },
+        method: "post",
+        success: (response) => {
+          if (response.status) {
+            Swal.fire({
 
-              location.reload();
-            }
-          })
+              icon: 'success',
+              title: 'Coupon is removed',
 
-        } else if (response.statusInvalid) {
-          Swal.fire({
+              timer: 1500,
+              confirmButtonText: 'ok',
+            }).then((result) => {
+              console.log(result)
+              if (result.isConfirmed) {
 
-            icon: 'error',
-            title: 'Invaild Referral',
+                location.reload();
+              }
+            })
 
-            timer: 3000,
-            confirmButtonText: 'ok',
-          })
+          } else if (response.statusInvalid) {
+            Swal.fire({
 
-        } else {
-          Swal.fire({
+              icon: 'error',
+              title: 'Invaild Referral',
 
-            icon: 'error',
-            title: 'You can not user your own Referral Code',
+              timer: 3000,
+              confirmButtonText: 'ok',
+            })
 
-            timer: 3000,
-            confirmButtonText: 'ok',
-          })
+          } else {
+            Swal.fire({
+
+              icon: 'error',
+              title: 'You can not user your own Referral Code',
+
+              timer: 3000,
+              confirmButtonText: 'ok',
+            })
+
+          }
 
         }
+      })
 
-      }
-    })
-
+    }
   }
 </script>

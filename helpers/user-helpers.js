@@ -344,6 +344,8 @@ module.exports = {
             db.get().collection(collection.CART_COLLECTION).findOne({ user: ObjectId(user) }).then((response) => {
 
                 resolve(response.product)
+            }).catch(() => {
+                resolve({ product: false })
             })
 
 
@@ -386,7 +388,23 @@ module.exports = {
     },
     orderList: (id) => {
         return new Promise(async (resolve, reject) => {
-            let order = await db.get().collection(collection.ORDER_COLLETION).find({ userId: ObjectId(id) }).toArray()
+            let order = await db.get().collection(collection.ORDER_COLLETION).aggregate([
+                {
+                    $match:{userId: ObjectId(id)}
+
+                },
+                {
+                    $project:{
+                        date: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
+                        deliveryDetails:1,
+                        userId:1,
+                        paymentMethod:1,
+                        products:1,
+                        total:1,
+                        status:1
+                    }
+                }
+            ]).sort({ _id: -1 }).toArray()
             resolve(order)
         })
     },
@@ -563,7 +581,7 @@ module.exports = {
                     "payment_method": "paypal"
                 },
                 "redirect_urls": {
-                    "return_url": "http://localhost:3000/success",
+                    "return_url": "http://localhost:3000/",
                     "cancel_url": "http://localhost:3000/"
                 },
                 "transactions": [{
@@ -692,6 +710,19 @@ module.exports = {
     },
     removeOrder: (data, id) => {
         return new Promise(async (resolve, reject) => {
+            let order= await db.get().collection(collection.ORDER_COLLETION).findOne({ _id: ObjectId(data.id) })
+            console.log(order.status);
+            if(order.status=='Pending'){
+                await db.get().collection(collection.ORDER_COLLETION).updateOne({ _id: ObjectId(data.id) }, {
+                    $set: {
+                        status: "cancelled"
+                    }
+                }).then(()=>{
+                    resolve({ status: true })
+                })
+            }else{
+
+            
             await db.get().collection(collection.ORDER_COLLETION).updateOne({ _id: ObjectId(data.id) }, {
                 $set: {
                     status: "cancelled"
@@ -717,6 +748,7 @@ module.exports = {
             }).catch(() => {
                 reject({ status: false })
             })
+        }
         })
     },
     getWallet: (id) => {
@@ -733,8 +765,78 @@ module.exports = {
                 resolve(response?.wallet)
             })
         })
+    },
+    addWishList: (data, user) => {
+        return new Promise(async (resolve, reject) => {
+            try {
+
+
+                let User = await db.get().collection(collection.WISHLIST_COLLECTION).findOne({ user: ObjectId(user) })
+                console.log(User);
+                if (User) {
+                    console.log('user');
+                    db.get().collection(collection.WISHLIST_COLLECTION).updateOne({ user: ObjectId(user) }, {
+                        $push: { product: ObjectId(data.id) }
+                    }).then(() => {
+                        resolve({ status: true })
+                    }).catch(() => {
+                        resolve({ status: false })
+                    })
+                } else {
+                    console.log('no user');
+                    let wishList = {}
+                    wishList.user = ObjectId(user)
+                    wishList.product = [ObjectId(data.id)]
+                    db.get().collection(collection.WISHLIST_COLLECTION).insertOne(wishList).then(() => [
+                        resolve({ status: true })
+                    ]).catch(() => {
+                        resolve({ status: false })
+                    })
+                }
+
+            } catch (error) {
+                resolve({ statusCatch: true })
+
+            }
+        })
+    },
+
+
+    getWishList:()=>{
+        return new Promise(async(resolve,reject)=>{
+            let data= await db.get().collection(collection.WISHLIST_COLLECTION).aggregate([
+                {
+                    $unwind:"$product"
+                },
+                {
+                    $lookup:{
+                        from:collection.PRODUCT_COLLECTION,
+                        localField:"product",
+                        foreignField:"_id",
+                        as:"products"
+                    }
+                },
+                {
+                    $unwind:"$products"
+                },
+                {
+                    $project:{products:1}
+                }
+
+
+            ]).toArray()
+     
+            resolve(data)
+        })
+    },
+    removeWishList:(data,user)=>{
+        return new Promise(async(resolve,reject)=>{
+            db.get().collection(collection.WISHLIST_COLLECTION).updateOne({ user: ObjectId(user) }, {
+                $pull: { product: ObjectId(data.id) }
+            }).then(()=>{
+                resolve({status:true})
+            })
+        })
     }
-
-
 
 }

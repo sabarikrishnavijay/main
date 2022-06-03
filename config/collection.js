@@ -10,7 +10,8 @@ module.exports={
    COUPON_COLLETION:"coupon",
    REFERRAL_COLLETION:"referral code",
    USED_CODE_COLLETION:"used code",
-   WALLET_COLLETION:"wallet"
+   WALLET_COLLETION:"wallet",
+   WISHLIST_COLLECTION:"wishlist",
 
    
 }

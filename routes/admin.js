@@ -72,10 +72,12 @@ router.get('/all-user', (req, res) => {
 
 })
 // ....................................delele user data...........................
-router.get('/delete-user/:id', (req, res) => {
-  let userId = req.params.id
+router.post('/delete-user', (req, res) => {
+  let userId = req.body.id.trim()
+  console.log(userId);
   adminHelper.deleteUser(userId).then((response) => {
-    res.redirect('/admin/all-user')
+    
+    res.json(response)
   })
 })
 
@@ -251,17 +253,25 @@ router.post('/order-update', (req, res) => {
 
 router.get('/banner-management', (req, res) => {
   adminHelpers.getBanner().then((banner) => {
-    console.log(banner);
-    res.render('admin/banner-management', { banner, activebanner: true,admin:true })
+
+    let imgErr=req.session.imgErr
+    res.render('admin/banner-management', { banner, activebanner: true,admin:true ,imgErr})
+    req.session.imgErr=false
   })
 
 })
 router.post('/banner', store.single('image'), (req, res) => {
   console.log(req.file);
-  adminHelper.addBanner(req.file).then(() => {
-    console.log('complete');
+  if(req.file==null){
+    req.session.imgErr="No image is found"
     res.redirect('/admin/banner-management')
-  })
+  }else{
+
+    adminHelper.addBanner(req.file).then(() => {
+      console.log('complete');
+      res.redirect('/admin/banner-management')
+    })
+  }
 
 
 })
@@ -364,10 +374,11 @@ router.post('/applycoupon', async(req, res)=> {
 
 
 })
-router.get('/delete-coupon/:id',(req,res)=>{
-  console.log(req.params);
-  adminHelpers.deleteCoupon(req.params).then(()=>{
-    res.redirect("/admin/coupon")
+router.post('/delete-coupon',(req,res)=>{
+  console.log('11111111111111111111111111111111111111111111111111111111');
+  console.log(req.body.data);
+  adminHelpers.deleteCoupon(req.body.data).then((response)=>{
+    res.json(response)
   })
 })
 

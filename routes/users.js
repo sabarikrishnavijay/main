@@ -196,14 +196,21 @@ router.post('/otp-varify', (req, res) => {
 })
 
 // .................................products............................
-router.get('/products', (req, res) => {
+router.get('/products',loginCheck, (req, res) => {
   user=req.session.user
   cartCOunt=req.session.count
-
-  adminHelpers.getProducts().then((product) => {
-    console.log(product);
+  if(req.session.product){
+    product=req.session.product
     res.render('users/catagory-based-products', { product ,user, cartCOunt })
-  })
+    req.session.product=false
+  }else{
+
+    
+    adminHelpers.getProducts().then((product) => {
+      console.log(product);
+      res.render('users/catagory-based-products', { product ,user, cartCOunt })
+    })
+  }
 
 })
 
@@ -211,9 +218,10 @@ router.get('/products', (req, res) => {
 router.post('/products',(req,res)=>{
   console.log(req.body);
   userHelpers.getFilterProducts(req.body).then((product)=>{
-    res.render('users/catagory-based-products',{product})
-  })
-
+   req.session.product=product
+   res.redirect('/products')
+ // res.render('users/catagory-based-products', { product ,user, cartCOunt })  
+})
 })
 // ...............................product card............................
 
@@ -302,12 +310,18 @@ router.get('/saved-address',async(req,res)=>{
 
 })
 router.post('/saved-address',loginCheck,async(req,res)=>{
-
- let usedCoupons=await userHelpers.getUsedCoupons(req.session.user._id)
-
+  try {
+    
+    
   let address=await userHelpers.getAddressDetails(req.body.addressid)
   let product=await userHelpers.getCartProductList2(address.userId)
-
+  console.log('111111111111111111111111111111111111111111111');
+  console.log(product);
+  
+  
+  let usedCoupons=await userHelpers.getUsedCoupons(req.session.user._id)
+  
+  
   let totalPriceObject= await userHelpers.getTotalAmont(address.userId)
   totalPrice= totalPriceObject.totalAmout
   req.session.total=totalPrice
@@ -315,31 +329,38 @@ router.post('/saved-address',loginCheck,async(req,res)=>{
     let orderId=response.insertedId
     req.session.orderId=orderId
     
-
+    
     if(req.body.paymentmethod==='COD'){
       res.json({codStatus:true})
     }else if (req.body.paymentmethod==='ONLINE'){
       userHelpers.generateRazorPay(orderId,totalPrice).then((response)=>{
-          res.json(response)
-
-
+        res.json(response)
+        
+        
       })
-
+      
     }else{
-
+      
       userHelpers.generatePaypal(orderId,totalPrice).then((data)=>{
         
         console.log('success');
         response.data=data
         response.paypal=true
-
+        
         res.json(response)
         
-
+        
       })
     }
     
   })
+  
+  
+} catch (error) {
+  console.log(error);
+  res.json({orderErr:true})
+  
+}
 }) 
 
 router.post('/place-order',loginCheck,async(req,res)=>{
@@ -411,6 +432,7 @@ router.get('/change-password',(req,res)=>{
 })
 
 router.post('/change-password',async(req,res)=>{
+  console.log(req.body);
 
   if(req.session.user.Email==req.body.Email){
    await userHelpers.changePassword(req.body).then((response)=>{
@@ -481,6 +503,30 @@ router.get('/referral-code',(req,res)=>{
 router.post('/referral-code',(req,res)=>{
   console.log(req.body);
   userHelpers.applyRefferalCode(req.body).then((response)=>{
+    res.json(response)
+  })
+})
+
+// .............................wishlist....................................
+router.get('/wish-list',(req,res)=>{
+  user=req.session.user._id
+  console.log('wish list');
+  userHelpers.getWishList().then((product)=>{
+    console.log(product);
+    res.render('users/wishlist',{product,user})
+  })
+})
+
+router.post('/add-wishlist',(req,res)=>{
+
+  console.log(req.body);
+  userHelpers.addWishList(req.body,req.session.user._id).then((response)=>{
+    console.log(response);
+    res.json(response)
+  })
+})
+router.post('/remove-wishlist',(req,res)=>{
+  userHelpers.removeWishList(req.body,req.session.user._id).then((response)=>{
     res.json(response)
   })
 })

@@ -19,8 +19,9 @@ module.exports = {
     },
     deleteUser: (userId) => {
         return new Promise(async (resolve, reject) => {
-            db.get().collection(collection.USER_COLLECTION).remove({ _id: objectId(userId) }).then((response) => {
-                resolve(response)
+          await  db.get().collection(collection.USER_COLLECTION).deleteOne({ _id:objectId(userId) }).then((response) => {
+              console.log(response);
+                resolve({status:true})
             })
         })
 
@@ -107,8 +108,10 @@ module.exports = {
     addProducts: (body, files) => {
         body.images = files
         body.Price = parseInt(body.Price)
-        return new Promise((resolve, reject) => {
-            db.get().collection(collection.PRODUCT2_COLLECTION).insertOne(body).then((response) => {
+        return new Promise(async(resolve, reject) => {
+           await db.get().collection(collection.PRODUCT_COLLECTION).insertOne(body)
+            await db.get().collection(collection.PRODUCT2_COLLECTION).insertOne(body).then((response) => {
+               
                 resolve(response);
             })
         })
@@ -167,7 +170,19 @@ module.exports = {
     },
     getOrderList: () => {
         return new Promise(async (resolve, reject) => {
-            let order = await db.get().collection(collection.ORDER_COLLETION).find().toArray()
+            let order = await db.get().collection(collection.ORDER_COLLETION).aggregate([
+                {
+                    $project:{
+                        date: { $dateToString: { format: "%Y-%m-%d", date: "$date" } },
+                        deliveryDetails:1,
+                        userId:1,
+                        paymentMethod:1,
+                        products:1,
+                        total:1,
+                        status:1
+                    }
+                }
+            ]).toArray()
             resolve(order)
         })
     },
@@ -200,7 +215,7 @@ module.exports = {
                     $match: {
 
 
-                        "status": { $ne: "cancelled" }
+                        "status": { $nin:[ "cancelled","Pending" ]}
 
 
 
@@ -323,7 +338,8 @@ module.exports = {
                         $match: {
 
 
-                            "status": { $ne: "cancelled" }
+                            "status": { $nin:[ "cancelled","Pending" ]}
+
 
 
 
@@ -356,8 +372,8 @@ module.exports = {
                     {
                         $match: {
 
+                            "status": { $nin:[ "cancelled","Pending" ]}
 
-                            "status": { $ne: "cancelled" }
 
 
 
@@ -392,7 +408,8 @@ module.exports = {
                         $match: {
 
 
-                            "status": { $ne: "cancelled" }
+                            "status": { $nin:[ "cancelled","Pending" ]}
+
 
 
 
@@ -571,8 +588,8 @@ module.exports = {
     },
     deleteCoupon: (id) => {
         return new Promise((resolve, reject) => {
-            db.get().collection(collection.COUPON_COLLETION).remove({ _id: ObjectId(id.id) }).then(() => {
-                resolve()
+            db.get().collection(collection.COUPON_COLLETION).deleteOne({ _id: ObjectId(id) }).then(() => {
+                resolve({status:true})
             })
         })
     }

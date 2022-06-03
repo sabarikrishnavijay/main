@@ -1,67 +1,154 @@
-<section>
-    <div class="container mt-2">
+<section class="container">
+  <div class="container mt-2 my-5">
 
-<!-- Button trigger modal -->
-<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-  Add Coupon
-</button>
+    <!-- Button trigger modal -->
+    <button type="button" class="btn btn-primary ms-5" data-bs-toggle="modal" data-bs-target="#exampleModal">
+      Add Coupon
+    </button>
 
-<!-- Modal -->
-<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <form action="/admin/addCoupon" method="post">
-      <div class="modal-body">
-          <label for="">Coupon Name</label>
-          <input type="text" name="coupon"  class="form-control">
-          <label for="">Enter the percentage</label>
-          <input type="number" name="percentage"  class="form-control">
-          <label for="">Enter offer end date</label>
-          <input type="date" name="endoffer"  class="form-control">
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="submit" class="btn btn-primary">Save changes</button>
-      </div>
-      </form>
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <form action="/admin/addCoupon" method="post">
+            <div class="modal-body">
+              <label for="">Coupon Name</label>
+              <input type="text" name="coupon" class="form-control" id="name" onkeyup="validatename()">
+              <p id="nameErr" class="text-danger"></p>
+              <label for="">Enter the percentage</label>
+              <input type="number" name="percentage" class="form-control" id="number" onkeyup="validatenumber()">
+              <p id="numberErr" class="text-danger"></p> 
+              <label for="">Enter offer end date</label>
+              <input type="date" name="endoffer" class="form-control" id="date" onkeyup="validatedate()">
+              <p id="dateErr" class="text-danger"></p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary" onclick=" return validate()">Save changes</button>
+            </div>
+          </form>
 
+        </div>
+      </div>
     </div>
+
   </div>
-</div>
-
-    </div>
 </section>
-<section>
-    <div class="container mt-3">
+<section class="m-5">
+  <div class="container mt-3 m-5">
     <hr>
 
     <table class="table">
-  <thead>
-    <tr>
-      <th scope="col">#</th>
-      <th scope="col">NAME</th>
-      <th scope="col">OFFER</th>
-      <th scope="col">date</th>
-      <th scope="col">delete</th>
-    </tr>
-  </thead>
-  <tbody>
-      {{#each coupon}}
-    <tr>
-      <th scope="row">{{@index}}</th>
-      <td>{{this.coupon}}</td>
-      <td>{{this.percentage}}%</td>
-      <td>{{this.endoffer}}</td>
-      <td><a class="btn btn-danger" href="/admin/delete-coupon/{{this._id}}">delete</a></td>
-  
-    </tr>
-    {{/each}}
-  
-  </tbody>
-</table>
-</div>
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">NAME</th>
+          <th scope="col">OFFER</th>
+          <th scope="col">date</th>
+          <th scope="col">delete</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each coupon}}
+        <tr>
+          <th scope="row">{{@index}}</th>
+          <td>{{this.coupon}}</td>
+          <td>{{this.percentage}}%</td>
+          <td>{{this.endoffer}}</td>
+          <td><button class="btn btn-danger" onclick="return deleteAlert('{{this._id}}')">delete</button></td>
+
+        </tr>
+        {{/each}}
+
+      </tbody>
+    </table>
+  </div>
 </section>
+
+<script>
+  let NameErr = document.getElementById("nameErr")
+  let NumberErr = document.getElementById("numberErr")
+  let DateErr = document.getElementById("dateErr")
+
+  function validatename() {
+    let name = document.getElementById("name").value;
+    if (name == "") {
+      NameErr.innerHTML = 'Field cannot be empty'
+      return false
+    }
+
+    NameErr.innerHTML = null
+    return true
+
+  }
+  function validatenumber() {
+    let number = document.getElementById('number').value
+    if (number == "") {
+      NumberErr.innerHTML = "field cannot be empty"
+      return false
+    } else if (number > 100) {
+      NumberErr.innerHTML = "cannot greaterthan 100"
+      return false
+    }
+    NumberErr.innerHTML = null
+    return true
+
+  }
+  function validatedate() {
+    let date = document.getElementById('date').value
+    if (date == "") {
+      DateErr.innerHTML = 'cannot be empty'
+      return false
+    }
+    DateErr.innerHTML = null
+    return true
+  }
+
+  function validate() {
+    if (!validatename() || !validatedate() || !validatenumber()) {
+
+      return false
+    }
+    return true
+  }
+
+  function deleteAlert(id){
+
+    Swal.fire({
+  title: 'Are you sure?',
+  text: "You won't be able to revert this!",
+  icon: 'warning',
+  showCancelButton: true,
+  confirmButtonColor: '#3085d6',
+  cancelButtonColor: '#d33',
+  confirmButtonText: 'Yes, delete it!'
+}).then((result) => {
+  if (result.isConfirmed) {
+    Swal.fire(
+      'Deleted!',
+      'Your file has been deleted.',
+      'success'
+    )
+    $.ajax({
+      url:"/admin/delete-coupon",
+      data:{
+        data:id
+      },
+      method:"post",
+      success:(response)=>{
+        location.reload()
+
+      }
+    })
+  
+  }
+   
+  
+})
+  }
+
+</script>

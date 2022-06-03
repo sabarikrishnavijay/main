@@ -1,11 +1,11 @@
 
-<section>
+<section class="d-flex justify-content-center container ">
     <div class="container">
         <div class="row mt-5">
             
           
         </div>
-        <table class="table mt-5" id="tab">
+        <table class="table m-5" id="tab">
   <thead>
     <tr>
       <th scope="col">status</th>
@@ -42,7 +42,7 @@
       <td> {{this.status}}</td>
       <td>
                  <a href="/admin/edit-user/{{this._id}}" class="btn btn-primary">Edit</a>
-       <a href="/admin/delete-user/{{this._id}}" onclick="return confirm('do you want to delect {{this.Name}}')" class="btn btn-danger">Delect</a>
+       <button href="/admin/delete-user/{{this._id}}" onclick="return confirmDelete(' {{this._id}}')" class="btn btn-danger">Delect</button>
        </td>
     </tr>
      {{/each}}
@@ -50,3 +50,37 @@
 </table>
     </div>
 </section>
+<script>
+  function confirmDelete(id){
+    alert(id)
+Swal.fire({
+  title: 'Are you sure?',
+  text: "You won't be able to revert this!",
+  icon: 'warning',
+  showCancelButton: true,
+  confirmButtonColor: '#3085d6',
+  cancelButtonColor: '#d33',
+  confirmButtonText: 'Yes, delete it!'
+}).then((result) => {
+  if (result.isConfirmed) {
+    Swal.fire(
+      'Deleted!',
+      'Your file has been deleted.',
+      'success'
+    )
+
+    $.ajax({
+      url:"/admin/delete-user",
+      method:"post",
+      data:{
+        id:id
+      },
+      success:(response)=>{
+        location.reload()
+
+      }
+    })
+  }
+})
+  }
+</script>

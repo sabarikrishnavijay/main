@@ -23,7 +23,7 @@ router.get('/', async (req, res) => {
   
     var html = fs.readFileSync("./views/admin/template.html", "utf8");
     var options = {
-        format: "A4",
+        format: "A3",
         orientation: "portrait",
         border: "10mm",
         header: {

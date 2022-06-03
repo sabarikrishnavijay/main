@@ -1,7 +1,11 @@
 <section>
-    <div class="container">
-        <div style="width: 500px;">
+    <div class="container m-5">
+        <div style="width: 500px;" class="m-5">
             <form action="/admin/banner" method="post" enctype="multipart/form-data">
+            {{#if imgErr}}
+            <span>{{imgErr}}</span><br>
+            {{else}}
+            {{/if}}
                 <label for="">Image</label>
                 <input type="file" name="image" class="form-control">
                 <button type="submit" class="btn btn-success">Add</button>

@@ -1,3 +1,7 @@
+require('dotenv').config()
+   
+
+
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
@@ -12,7 +16,7 @@ var adminRouter = require('./routes/admin');
 var usersRouter = require('./routes/users');
 const pdfRouter = require('./routes/pdfgenerator');
  
-var app = express();
+var app = express(); 
 
 var Hbs=hbs.create({});
 

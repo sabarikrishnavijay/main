@@ -8,7 +8,7 @@ const store = require('../config/multer');
 const async = require('hbs/lib/async');
 const { Db } = require('mongodb');
 const res = require('express/lib/response');
-
+require('dotenv').config()
 //...................................middle ware..........................
 
 
@@ -47,7 +47,7 @@ router.get('/login', (req, res) => {
 })
 
 router.post('/login-admin', (req, res) => {
-  if (req.body.Email == "admin@gmail.com" && req.body.Password == "123") {
+  if (req.body.Email == process.env.ADMIN && req.body.Password ==process.env.ADMIN_PASSOWRD) {
     req.session.admin = true
     res.redirect('/admin')
   }

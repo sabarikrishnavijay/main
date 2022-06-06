@@ -1,4 +1,6 @@
+
 var db = require('../config/connection')
+require('dotenv').config();
 var Collection = require('../config/collection')
 const bcrypt = require('bcrypt');
 const collection = require('../config/collection');
@@ -10,9 +12,11 @@ const { ObjectId } = require('mongodb');
 const { PRODUCT_COLLECTION } = require('../config/collection');
 const Razorpay = require('razorpay');
 const { resolve } = require('path');
+require('dotenv').config()
 let referralCodeGenerator = require('referral-code-generator')
 var instance = new Razorpay({
-    key_id: 'rzp_test_duNcjDhQWPGpIJ', key_secret: 'JQuHfdVzeY9rSvy726jAVcH6',
+    key_id: process.env.KEY_ID, key_secret: process.env.KEY_SCERT,
+  //  key_id: process.ENV.KEY_ID, key_secret: process.env.key_secret,
 });
 
 
@@ -21,8 +25,8 @@ const { rejects } = require('assert');
 
 paypal.configure({
     'mode': 'sandbox', //sandbox or live
-    'client_id': 'AePyJOTL1wJeJ4WtjO5HwaOPYJT1Ufd4CgVnd8UjtsUNuJP9fShqNUPvFJeECyaWmurWoY9cS9HoH8gl',
-    'client_secret': 'EAuA_BHwQ_uFMOv76CkHO1RNITmCqvnobQkLyzT55SxpmhPDQAwj2B8u00bqlkauikPFYDLwXV6ceoor'
+    'client_id': process.env.client_id,
+    'client_secret': process.env.client_secret
 });
 
 
@@ -371,11 +375,11 @@ module.exports = {
                 status: status,
                 date: new Date()
             }
-            db.get().collection(collection.ORDER_COLLETION).insertOne(orderObj).then((response) => {
-                db.get().collection(collection.ADDRESS_COLLETION).insertOne(orderObj.deliveryDetails)
-                db.get().collection(collection.CART_COLLECTION).remove({ user: ObjectId(order.userid) })
+
+            db.get().collection(collection.ADDRESS_COLLETION).insertOne(orderObj.deliveryDetails).then(()=>{
                 resolve()
             })
+           
         })
     })
     ,
@@ -581,7 +585,7 @@ module.exports = {
                     "payment_method": "paypal"
                 },
                 "redirect_urls": {
-                    "return_url": "http://localhost:3000/",
+                    "return_url": "http://localhost:3000/success",
                     "cancel_url": "http://localhost:3000/"
                 },
                 "transactions": [{
@@ -835,6 +839,21 @@ module.exports = {
                 $pull: { product: ObjectId(data.id) }
             }).then(()=>{
                 resolve({status:true})
+            })
+        })
+    },
+    checkCart:(id)=>{
+        return new Promise ((resolve,reject)=>{
+            db.get().collection(collection.CART_COLLECTION).findOne({user:ObjectId(id)}).then((response)=>{
+                console.log(response);
+                if(response){
+
+                    console.log('true');
+                    resolve({status:true})
+                }else{
+                    console.log('false');
+                    resolve({status:false})
+                }
             })
         })
     }
